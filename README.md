@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎓 Yordamchi AI — Talaba va O'qituvchilar uchun Ilmiy Platforma
 
-## Getting Started
+**Yordamchi AI** — O'zbekiston oliy ta'lim muassasalari (OTM) talabalari, magistrlari va o'qituvchilari uchun sun'iy intellekt asosida professional taqdimotlar (prezentatsiya), referatlar, kurs ishlari va mustaqil ishlarni avtomatlashtirilgan tarzda yaratuvchi zamonaviy platforma.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## ✨ Asosiy Imkoniyatlar
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 1. 📊 Taqdimotlar (Prezentatsiyalar) Generatori
+- **16:9 Qat'iy Standart Format**: Slaydlar ekrandan chiqib ketmaydi va ichki skrollsiz ko'rinadi.
+- **Mavzuga Mos Aqlli Rasmlar (Smart Topic Images)**: 16 ta ilmiy soha (Dasturlash/IT, Moliya va Iqtisod, Tibbiyot, Huquq, Tarix, Biologiya, Fizika, Kimyo, Pedagogika va b.) bo'yicha yuqori sifatli tematik rasmlar avtomatik tanlanadi.
+- **Mundarija va Rejalar**: 2-slaydda chiroyli 2 ustunli tuzilma bilan jamlanadi.
+- **Avtomatik Ko'chirish (Auto-Overflow)**: Slaydda 4-5 tadan ko'p ma'lumot bo'lsa, avtomatik keyingi slaydga (`... Davomi`) o'tkaziladi.
+- **Professional PowerPoint (.pptx) Eksport**: Rasmlar bazaviy ravishda joylashtiriladi, yozuvlar ustma-ust tushmaydi, foizli koordinatalar bilan mukammal saqlanadi.
+- **Canva Uslubidagi Vizual Mavzular**: Modern Indigo, Dark Tech, Emerald Science, Crimson Bold, Sunset Amber, Minimalist Clean.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 2. 📄 Ilmiy Hujjatlar (Referat, Kurs ishi, Mustaqil ish)
+- **OTM Davlat Standarti**:
+  - Shrift: Times New Roman 14pt
+  - Qatorlar oralig'i: 1.5 interval
+  - Xatboshi: 1.25 cm
+  - Hoshiyalar: Chap 3.0 cm, O'ng 1.5 cm, Yuqori 2.0 cm, Quyi 2.0 cm
+- **To'liq Ilmiy Bo'limlar**: Titul varaqa, Mundarija, Kirish (dolzarbligi, maqsad, vazifalar), Asosiy boblar, Xulosa va Takliflar, Foydalanilgan adabiyotlar.
+- **To'g'ridan-to'g'ri Word (.docx) Eksport**: Barcha formatlar va jadvallar to'liq saqlanadi.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 3. 💳 To'lov va Obuna Tizimi (Freemium)
+- **1-hujjat mutlaqo bepul** yaratiladi.
+- Keyingi hujjatlar uchun **15 000 so'm/oy** qulay talabalar obunasi.
+- **Click va Payme** to'lov tizimlari integratsiyasi (SMS kod orqali tasdiqlash bilan).
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 🛠 Texnologiyalar
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Frontend**: Next.js 16 (App Router), React 19, TypeScript
+- **Dizayn**: Tailwind CSS, Lucide React piktogrammalar
+- **Fayllar Generatsiyasi**:
+  - `pptxgenjs` — Microsoft PowerPoint (.pptx)
+  - `docx` — Microsoft Word (.docx)
+  - `file-saver` — Fayllarni avtomatik yuklab olish
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 🚀 Loyihani Ishga Tushirish
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. **Repozitoriyani klonlash:**
+   ```bash
+   git clone https://github.com/komilazokirova/yordamchi-ai.git
+   cd yordamchi-ai
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+2. **Kutubxonalarni o'rnatish:**
+   ```bash
+   npm install
+   ```
+
+3. **Lokal serverni yoqish:**
+   ```bash
+   npm run dev
+   ```
+
+4. Brauzeringizda oching:
+   ```
+   http://localhost:3000
+   ```
+
+---
+
+## 👨‍💻 Muallif
+
+- **Komila Zokirova**
+- Email: `zokirovakomila500@gmail.com`
+- GitHub: [@komilazokirova](https://github.com/komilazokirova)
