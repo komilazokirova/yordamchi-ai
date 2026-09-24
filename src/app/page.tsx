@@ -1,69 +1,435 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import React, { useState, useEffect } from 'react';
+import {
+  DocType,
+  Language,
+  OutlineItem,
+  AcademicDocument,
+  UserAccount,
+  AISettings,
+  SlideData,
+  PaymentTransaction,
+} from '@/types';
+import { Navbar } from '@/components/Navbar';
+import { CreateWizard } from '@/components/CreateWizard';
+import { OutlineStep } from '@/components/OutlineStep';
+import { PresentationStudio } from '@/components/PresentationStudio';
+import { AcademicEditor } from '@/components/AcademicEditor';
+import { MyDocuments } from '@/components/MyDocuments';
+import { SubscriptionModal } from '@/components/SubscriptionModal';
+import { AuthModal } from '@/components/AuthModal';
+import { SettingsModal } from '@/components/SettingsModal';
+import { DEFAULT_THEME_ID } from '@/lib/slide-themes';
+import {
+  generateOutlines,
+  generateAcademicContent,
+  generatePresentationSlides,
+} from '@/lib/ai-service';
+
+export default function HomePage() {
+  // 1. User & Account State
+  const [user, setUser] = useState<UserAccount>({
+    id: 'user-default',
+    email: 'talaba@edu.uz',
+    fullName: 'Azizov Bekzod',
+    role: 'student',
+    university: "O'zbekiston Milliy Universiteti",
+    isSubscribed: false,
+    freeGenerationsLeft: 1, // 1st generation is FREE!
+    totalGenerated: 0,
+    savedDocs: [],
+  });
+
+  // 2. AI Settings State
+  const [aiSettings, setAiSettings] = useState<AISettings>({
+    provider: 'gemini',
+    geminiApiKey: '',
+    openaiApiKey: '',
+    geminiModel: 'gemini-3.8-flash',
+    openaiModel: 'gpt-4o-mini',
+  });
+
+  // 3. Navigation & Workflow State
+  const [currentTab, setCurrentTab] = useState<'create' | 'my-docs'>('create');
+  const [step, setStep] = useState<'wizard' | 'outlines' | 'studio' | 'academic-editor'>('wizard');
+  const [isLoading, setIsLoading] = useState(false);
+
+  // 4. Active Document State
+  const [currentDoc, setCurrentDoc] = useState<AcademicDocument | null>(null);
+
+  // 5. Modals State
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [isSubscribeOpen, setIsSubscribeOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  // Load state from localStorage on client mount
+  useEffect(() => {
+    try {
+      const storedUser = localStorage.getItem('yordamchi_ai_user') || localStorage.getItem('talaba_ai_user');
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      }
+      const storedSettings = localStorage.getItem('yordamchi_ai_settings') || localStorage.getItem('talaba_ai_settings');
+      if (storedSettings) {
+        setAiSettings(JSON.parse(storedSettings));
+      }
+    } catch (e) {
+      console.warn('LocalStorage load error:', e);
+    }
+  }, []);
+
+  // Save user changes to localStorage
+  const saveUserData = (updated: UserAccount) => {
+    setUser(updated);
+    try {
+      localStorage.setItem('yordamchi_ai_user', JSON.stringify(updated));
+    } catch (e) {
+      console.warn('LocalStorage save error:', e);
+    }
+  };
+
+  const saveSettingsData = (updated: AISettings) => {
+    setAiSettings(updated);
+    try {
+      localStorage.setItem('yordamchi_ai_settings', JSON.stringify(updated));
+    } catch (e) {
+      console.warn('LocalStorage save error:', e);
+    }
+  };
+
+  // STEP 1 -> STEP 2: Generate Outlines
+  const handleGenerateOutlines = async (params: {
+    topic: string;
+    docType: DocType;
+    language: Language;
+    university: string;
+    faculty: string;
+    authorName: string;
+    supervisorName: string;
+    targetCount: number;
+  }) => {
+    // Check generation quota
+    if (!user.isSubscribed && user.freeGenerationsLeft <= 0) {
+      setIsSubscribeOpen(true);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const outlines = await generateOutlines(
+        params.topic,
+        params.docType,
+        params.language,
+        {
+          apiKey: aiSettings.provider === 'gemini' ? aiSettings.geminiApiKey : aiSettings.openaiApiKey,
+          provider: aiSettings.provider,
+          model: aiSettings.provider === 'gemini' ? aiSettings.geminiModel : aiSettings.openaiModel,
+        },
+        params.targetCount
+      );
+
+      const newDoc: AcademicDocument = {
+        id: `doc-${Date.now()}`,
+        title: params.topic,
+        docType: params.docType,
+        language: params.language,
+        authorName: params.authorName || user.fullName,
+        institution: params.university || user.university || "O'zbekiston Milliy Universiteti",
+        faculty: params.faculty,
+        supervisorName: params.supervisorName,
+        year: 2026,
+        createdAt: new Date().toISOString(),
+        outlines,
+        selectedThemeId: DEFAULT_THEME_ID,
+        targetCount: params.targetCount,
+      };
+
+      setCurrentDoc(newDoc);
+      setStep('outlines');
+    } catch (err) {
+      console.error('Outlines generation error:', err);
+      alert('Rejalarni tuzishda xatolik yuz berdi. Iltimos qayta urinib ko\'ring.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // STEP 2 -> STEP 3: Generate Full Content or Slides
+  const handleProceedToContent = async () => {
+    if (!currentDoc) return;
+
+    // Check quota
+    if (!user.isSubscribed && user.freeGenerationsLeft <= 0) {
+      setIsSubscribeOpen(true);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const activeApiKey = aiSettings.provider === 'gemini' ? aiSettings.geminiApiKey : aiSettings.openaiApiKey;
+      const genOptions = {
+        apiKey: activeApiKey,
+        provider: aiSettings.provider,
+        model: aiSettings.provider === 'gemini' ? aiSettings.geminiModel : aiSettings.openaiModel,
+      };
+
+      if (currentDoc.docType === 'presentation') {
+        const slides = await generatePresentationSlides(
+          currentDoc.title,
+          currentDoc.outlines,
+          currentDoc.selectedThemeId || DEFAULT_THEME_ID,
+          genOptions
+        );
+
+        const updatedDoc = { ...currentDoc, slides };
+        setCurrentDoc(updatedDoc);
+        saveDocumentToHistory(updatedDoc);
+        setStep('studio');
+      } else {
+        // Coursework, Referat, Independent work
+        const academicData = await generateAcademicContent(
+          currentDoc.title,
+          currentDoc.outlines,
+          currentDoc.docType,
+          currentDoc.language,
+          genOptions
+        );
+
+        const updatedDoc = {
+          ...currentDoc,
+          introduction: academicData.introduction,
+          sections: academicData.sections,
+          conclusion: academicData.conclusion,
+          references: academicData.references,
+        };
+
+        setCurrentDoc(updatedDoc);
+        saveDocumentToHistory(updatedDoc);
+        setStep('academic-editor');
+      }
+
+      // Deduct free usage if not subscribed
+      if (!user.isSubscribed && user.freeGenerationsLeft > 0) {
+        saveUserData({
+          ...user,
+          freeGenerationsLeft: user.freeGenerationsLeft - 1,
+          totalGenerated: user.totalGenerated + 1,
+        });
+      } else {
+        saveUserData({
+          ...user,
+          totalGenerated: user.totalGenerated + 1,
+        });
+      }
+    } catch (err) {
+      console.error('Content generation error:', err);
+      alert('Matn/slaydlarni yaratishda xatolik yuz berdi.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Save doc to history
+  const saveDocumentToHistory = (docToSave: AcademicDocument) => {
+    const existingIndex = user.savedDocs.findIndex((d) => d.id === docToSave.id);
+    let updatedDocs: AcademicDocument[] = [];
+    if (existingIndex >= 0) {
+      updatedDocs = user.savedDocs.map((d) => (d.id === docToSave.id ? docToSave : d));
+    } else {
+      updatedDocs = [docToSave, ...user.savedDocs];
+    }
+    saveUserData({ ...user, savedDocs: updatedDocs });
+  };
+
+  // Delete doc from history
+  const handleDeleteDoc = (id: string) => {
+    const updated = user.savedDocs.filter((d) => d.id !== id);
+    saveUserData({ ...user, savedDocs: updated });
+    if (currentDoc?.id === id) {
+      setCurrentDoc(null);
+      setStep('wizard');
+    }
+  };
+
+  // Open doc from history
+  const handleOpenDoc = (doc: AcademicDocument) => {
+    setCurrentDoc(doc);
+    if (doc.docType === 'presentation') {
+      setStep('studio');
+    } else {
+      setStep('academic-editor');
+    }
+    setCurrentTab('create');
+  };
+
+  // Successful Subscription
+  const handleSuccessSubscribe = (transaction: PaymentTransaction) => {
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 30);
+    const existingHistory = user.paymentHistory || [];
+    saveUserData({
+      ...user,
+      isSubscribed: true,
+      subscriptionExpiresAt: expiresAt.toISOString(),
+      paymentHistory: [transaction, ...existingHistory],
+    });
+  };
+
+  // Reset Test Limit
+  const handleResetTestLimit = () => {
+    saveUserData({
+      ...user,
+      isSubscribed: false,
+      freeGenerationsLeft: 1,
+    });
+  };
+
+  // Log out (Chiqish)
+  const handleLogout = () => {
+    if (confirm("Haqiqatan ham hisobdan chiqmoqchimisiz?")) {
+      const guestUser: UserAccount = {
+        id: `user-${Date.now()}`,
+        email: '',
+        fullName: '',
+        role: 'student',
+        university: "O'zbekiston Milliy Universiteti",
+        isSubscribed: false,
+        freeGenerationsLeft: 1,
+        totalGenerated: 0,
+        savedDocs: user.savedDocs || [],
+      };
+      saveUserData(guestUser);
+      setCurrentDoc(null);
+      setStep('wizard');
+      setCurrentTab('create');
+    }
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+    <div className="flex min-h-screen flex-col bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-white">
+      {/* Top Navbar */}
+      <Navbar
+        user={user}
+        onOpenAuth={() => setIsAuthOpen(true)}
+        onOpenSubscribe={() => setIsSubscribeOpen(true)}
+        onOpenSettings={() => setIsSettingsOpen(true)}
+        onLogout={handleLogout}
+        currentTab={currentTab}
+        onSelectTab={(tab) => {
+          setCurrentTab(tab);
+          if (tab === 'create' && !currentDoc) {
+            setStep('wizard');
+          }
+        }}
+      />
+
+      {/* Main Area */}
+      <main className="flex-1">
+        {currentTab === 'my-docs' ? (
+          <MyDocuments
+            documents={user.savedDocs}
+            onOpenDoc={handleOpenDoc}
+            onDeleteDoc={handleDeleteDoc}
+            onNewDoc={() => {
+              setCurrentDoc(null);
+              setStep('wizard');
+              setCurrentTab('create');
+            }}
+          />
+        ) : (
+          <>
+            {step === 'wizard' && (
+              <CreateWizard
+                onGenerateOutlines={handleGenerateOutlines}
+                isLoading={isLoading}
+                defaultUniversity={user.university}
+                defaultAuthor={user.fullName}
+                isSubscribed={user.isSubscribed}
+                freeGenerationsLeft={user.freeGenerationsLeft}
+                onOpenSubscribe={() => setIsSubscribeOpen(true)}
+              />
+            )}
+
+            {step === 'outlines' && currentDoc && (
+              <div className="py-8">
+                <OutlineStep
+                  topic={currentDoc.title}
+                  docType={currentDoc.docType}
+                  outlines={currentDoc.outlines}
+                  onChangeOutlines={(newOutlines) =>
+                    setCurrentDoc({ ...currentDoc, outlines: newOutlines })
+                  }
+                  onProceed={handleProceedToContent}
+                  onBack={() => setStep('wizard')}
+                  isLoading={isLoading}
+                />
+              </div>
+            )}
+
+            {step === 'studio' && currentDoc && currentDoc.slides && (
+              <PresentationStudio
+                topic={currentDoc.title}
+                slides={currentDoc.slides}
+                selectedThemeId={currentDoc.selectedThemeId || DEFAULT_THEME_ID}
+                onUpdateSlides={(slides: SlideData[]) => {
+                  const updated = { ...currentDoc, slides };
+                  setCurrentDoc(updated);
+                  saveDocumentToHistory(updated);
+                }}
+                onSelectTheme={(themeId) => {
+                  const updated = { ...currentDoc, selectedThemeId: themeId };
+                  setCurrentDoc(updated);
+                  saveDocumentToHistory(updated);
+                }}
+                onBackToOutlines={() => setStep('outlines')}
+                authorName={currentDoc.authorName}
+                institution={currentDoc.institution}
+              />
+            )}
+
+            {step === 'academic-editor' && currentDoc && (
+              <AcademicEditor
+                document={currentDoc}
+                onUpdateDocument={(doc) => {
+                  setCurrentDoc(doc);
+                  saveDocumentToHistory(doc);
+                }}
+                onBackToOutlines={() => setStep('outlines')}
+                userApiKey={
+                  aiSettings.provider === 'gemini'
+                    ? aiSettings.geminiApiKey
+                    : aiSettings.openaiApiKey
+                }
+                provider={aiSettings.provider}
+              />
+            )}
+          </>
+        )}
       </main>
+
+      {/* Modals */}
+      <SubscriptionModal
+        isOpen={isSubscribeOpen}
+        onClose={() => setIsSubscribeOpen(false)}
+        onSuccessSubscribe={handleSuccessSubscribe}
+        isExpiredLimit={!user.isSubscribed && user.freeGenerationsLeft <= 0}
+      />
+
+      <AuthModal
+        isOpen={isAuthOpen}
+        onClose={() => setIsAuthOpen(false)}
+        currentUser={user}
+        onSaveUser={(updated) => saveUserData({ ...user, ...updated })}
+        onResetTestLimit={handleResetTestLimit}
+      />
+
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        settings={aiSettings}
+        onSaveSettings={saveSettingsData}
+      />
     </div>
   );
 }
