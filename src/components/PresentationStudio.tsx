@@ -32,6 +32,7 @@ interface PresentationStudioProps {
   onUpdateSlides: (slides: SlideData[]) => void;
   onSelectTheme: (themeId: string) => void;
   onBackToOutlines: () => void;
+  onNewDocument?: () => void;
   authorName?: string;
   institution?: string;
 }
@@ -43,6 +44,7 @@ export const PresentationStudio: React.FC<PresentationStudioProps> = ({
   onUpdateSlides,
   onSelectTheme,
   onBackToOutlines,
+  onNewDocument,
   authorName,
   institution,
 }) => {
@@ -379,6 +381,16 @@ export const PresentationStudio: React.FC<PresentationStudioProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
+            {onNewDocument && (
+              <button
+                onClick={onNewDocument}
+                className="flex items-center gap-1.5 rounded-xl border border-blue-500/40 bg-blue-600/20 px-3 py-1.5 text-xs font-semibold text-blue-300 hover:bg-blue-600/30 hover:text-white transition-colors"
+              >
+                <Plus className="h-3.5 w-3.5 text-blue-400" />
+                <span className="hidden sm:inline">+ Yangi yaratish</span>
+              </button>
+            )}
+
             <button
               onClick={() => setIsFullscreen(true)}
               className="flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-1.5 text-xs font-medium text-slate-200 hover:bg-slate-700"

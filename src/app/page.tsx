@@ -68,34 +68,58 @@ export default function HomePage() {
     try {
       const storedUser = localStorage.getItem('yordamchi_ai_user') || localStorage.getItem('talaba_ai_user');
       if (storedUser) {
-        setUser(JSON.parse(storedUser));
+        const parsed = JSON.parse(storedUser);
+        // CRUCIAL: If user is not subscribed and has already created at least 1 document (or totalGenerated >= 1),
+        // enforce freeGenerationsLeft = 0 immediately!
+        if (!parsed.isSubscribed && (parsed.totalGenerated >= 1 || (parsed.savedDocs && parsed.savedDocs.length >= 1))) {
+          parsed.freeGenerationsLeft = 0;
+        }
+        setUser(parsed);
       }
       const storedSettings = localStorage.getItem('yordamchi_ai_settings') || localStorage.getItem('talaba_ai_settings');
       if (storedSettings) {
         setAiSettings(JSON.parse(storedSettings));
       }
+      // Purge legacy key to prevent old data interference
+      localStorage.removeItem('talaba_ai_user');
+      localStorage.removeItem('talaba_ai_settings');
     } catch (e) {
       console.warn('LocalStorage load error:', e);
     }
   }, []);
 
-  // Save user changes to localStorage
-  const saveUserData = (updated: UserAccount) => {
-    setUser(updated);
-    try {
-      localStorage.setItem('yordamchi_ai_user', JSON.stringify(updated));
-    } catch (e) {
-      console.warn('LocalStorage save error:', e);
-    }
+  // Robust atomic user state update with localStorage sync
+  const saveUserData = (updater: UserAccount | ((prev: UserAccount) => UserAccount)) => {
+    setUser((prev) => {
+      const updated = typeof updater === 'function' ? updater(prev) : updater;
+      try {
+        localStorage.setItem('yordamchi_ai_user', JSON.stringify(updated));
+        localStorage.removeItem('talaba_ai_user');
+      } catch (e) {
+        console.warn('LocalStorage save error:', e);
+      }
+      return updated;
+    });
   };
 
   const saveSettingsData = (updated: AISettings) => {
     setAiSettings(updated);
     try {
       localStorage.setItem('yordamchi_ai_settings', JSON.stringify(updated));
+      localStorage.removeItem('talaba_ai_settings');
     } catch (e) {
       console.warn('LocalStorage save error:', e);
     }
+  };
+
+  // Start creating a new document (with paid mode gate)
+  const handleStartNewDoc = () => {
+    if (!user.isSubscribed && user.freeGenerationsLeft <= 0) {
+      setIsSubscribeOpen(true);
+    }
+    setCurrentDoc(null);
+    setStep('wizard');
+    setCurrentTab('create');
   };
 
   // STEP 1 -> STEP 2: Generate Outlines
@@ -109,7 +133,7 @@ export default function HomePage() {
     supervisorName: string;
     targetCount: number;
   }) => {
-    // Check generation quota
+    // Check generation quota: Strict Paid Mode Gate
     if (!user.isSubscribed && user.freeGenerationsLeft <= 0) {
       setIsSubscribeOpen(true);
       return;
@@ -159,7 +183,7 @@ export default function HomePage() {
   const handleProceedToContent = async () => {
     if (!currentDoc) return;
 
-    // Check quota
+    // Strict quota check before generating slides/content
     if (!user.isSubscribed && user.freeGenerationsLeft <= 0) {
       setIsSubscribeOpen(true);
       return;
@@ -184,8 +208,26 @@ export default function HomePage() {
 
         const updatedDoc = { ...currentDoc, slides };
         setCurrentDoc(updatedDoc);
-        saveDocumentToHistory(updatedDoc);
         setStep('studio');
+
+        // Atomically save to history, decrement free generations to 0, and increment totalGenerated!
+        saveUserData((prev) => {
+          const existingIndex = prev.savedDocs.findIndex((d) => d.id === updatedDoc.id);
+          const updatedDocs = existingIndex >= 0
+            ? prev.savedDocs.map((d) => (d.id === updatedDoc.id ? updatedDoc : d))
+            : [updatedDoc, ...prev.savedDocs];
+
+          const newFreeLeft = !prev.isSubscribed && prev.freeGenerationsLeft > 0
+            ? prev.freeGenerationsLeft - 1
+            : prev.freeGenerationsLeft;
+
+          return {
+            ...prev,
+            savedDocs: updatedDocs,
+            freeGenerationsLeft: newFreeLeft,
+            totalGenerated: prev.totalGenerated + 1,
+          };
+        });
       } else {
         // Coursework, Referat, Independent work
         const academicData = await generateAcademicContent(
@@ -205,21 +247,25 @@ export default function HomePage() {
         };
 
         setCurrentDoc(updatedDoc);
-        saveDocumentToHistory(updatedDoc);
         setStep('academic-editor');
-      }
 
-      // Deduct free usage if not subscribed
-      if (!user.isSubscribed && user.freeGenerationsLeft > 0) {
-        saveUserData({
-          ...user,
-          freeGenerationsLeft: user.freeGenerationsLeft - 1,
-          totalGenerated: user.totalGenerated + 1,
-        });
-      } else {
-        saveUserData({
-          ...user,
-          totalGenerated: user.totalGenerated + 1,
+        // Atomically save to history, decrement free generations to 0, and increment totalGenerated!
+        saveUserData((prev) => {
+          const existingIndex = prev.savedDocs.findIndex((d) => d.id === updatedDoc.id);
+          const updatedDocs = existingIndex >= 0
+            ? prev.savedDocs.map((d) => (d.id === updatedDoc.id ? updatedDoc : d))
+            : [updatedDoc, ...prev.savedDocs];
+
+          const newFreeLeft = !prev.isSubscribed && prev.freeGenerationsLeft > 0
+            ? prev.freeGenerationsLeft - 1
+            : prev.freeGenerationsLeft;
+
+          return {
+            ...prev,
+            savedDocs: updatedDocs,
+            freeGenerationsLeft: newFreeLeft,
+            totalGenerated: prev.totalGenerated + 1,
+          };
         });
       }
     } catch (err) {
@@ -230,22 +276,26 @@ export default function HomePage() {
     }
   };
 
-  // Save doc to history
+  // Save doc to history without altering user quota
   const saveDocumentToHistory = (docToSave: AcademicDocument) => {
-    const existingIndex = user.savedDocs.findIndex((d) => d.id === docToSave.id);
-    let updatedDocs: AcademicDocument[] = [];
-    if (existingIndex >= 0) {
-      updatedDocs = user.savedDocs.map((d) => (d.id === docToSave.id ? docToSave : d));
-    } else {
-      updatedDocs = [docToSave, ...user.savedDocs];
-    }
-    saveUserData({ ...user, savedDocs: updatedDocs });
+    saveUserData((prev) => {
+      const existingIndex = prev.savedDocs.findIndex((d) => d.id === docToSave.id);
+      let updatedDocs: AcademicDocument[] = [];
+      if (existingIndex >= 0) {
+        updatedDocs = prev.savedDocs.map((d) => (d.id === docToSave.id ? docToSave : d));
+      } else {
+        updatedDocs = [docToSave, ...prev.savedDocs];
+      }
+      return { ...prev, savedDocs: updatedDocs };
+    });
   };
 
   // Delete doc from history
   const handleDeleteDoc = (id: string) => {
-    const updated = user.savedDocs.filter((d) => d.id !== id);
-    saveUserData({ ...user, savedDocs: updated });
+    saveUserData((prev) => {
+      const updated = prev.savedDocs.filter((d) => d.id !== id);
+      return { ...prev, savedDocs: updated };
+    });
     if (currentDoc?.id === id) {
       setCurrentDoc(null);
       setStep('wizard');
@@ -267,39 +317,40 @@ export default function HomePage() {
   const handleSuccessSubscribe = (transaction: PaymentTransaction) => {
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 30);
-    const existingHistory = user.paymentHistory || [];
-    saveUserData({
-      ...user,
+    saveUserData((prev) => ({
+      ...prev,
       isSubscribed: true,
       subscriptionExpiresAt: expiresAt.toISOString(),
-      paymentHistory: [transaction, ...existingHistory],
-    });
+      paymentHistory: [transaction, ...(prev.paymentHistory || [])],
+    }));
   };
 
-  // Reset Test Limit
+  // Reset Test Limit (For testing/debugging only)
   const handleResetTestLimit = () => {
-    saveUserData({
-      ...user,
+    saveUserData((prev) => ({
+      ...prev,
       isSubscribed: false,
       freeGenerationsLeft: 1,
-    });
+    }));
   };
 
-  // Log out (Chiqish)
+  // Log out (Chiqish) - preserves quota so logout cannot be abused to get free docs
   const handleLogout = () => {
     if (confirm("Haqiqatan ham hisobdan chiqmoqchimisiz?")) {
-      const guestUser: UserAccount = {
-        id: `user-${Date.now()}`,
-        email: '',
-        fullName: '',
-        role: 'student',
-        university: "O'zbekiston Milliy Universiteti",
-        isSubscribed: false,
-        freeGenerationsLeft: 1,
-        totalGenerated: 0,
-        savedDocs: user.savedDocs || [],
-      };
-      saveUserData(guestUser);
+      saveUserData((prev) => {
+        const guestUser: UserAccount = {
+          id: `user-${Date.now()}`,
+          email: '',
+          fullName: '',
+          role: 'student',
+          university: "O'zbekiston Milliy Universiteti",
+          isSubscribed: false,
+          freeGenerationsLeft: prev.freeGenerationsLeft, // preserve quota
+          totalGenerated: prev.totalGenerated,
+          savedDocs: prev.savedDocs || [],
+        };
+        return guestUser;
+      });
       setCurrentDoc(null);
       setStep('wizard');
       setCurrentTab('create');
@@ -318,10 +369,11 @@ export default function HomePage() {
         currentTab={currentTab}
         onSelectTab={(tab) => {
           setCurrentTab(tab);
-          if (tab === 'create' && !currentDoc) {
-            setStep('wizard');
+          if (tab === 'create') {
+            handleStartNewDoc();
           }
         }}
+        onNewDoc={handleStartNewDoc}
       />
 
       {/* Main Area */}
@@ -331,11 +383,7 @@ export default function HomePage() {
             documents={user.savedDocs}
             onOpenDoc={handleOpenDoc}
             onDeleteDoc={handleDeleteDoc}
-            onNewDoc={() => {
-              setCurrentDoc(null);
-              setStep('wizard');
-              setCurrentTab('create');
-            }}
+            onNewDoc={handleStartNewDoc}
           />
         ) : (
           <>
@@ -383,6 +431,7 @@ export default function HomePage() {
                   saveDocumentToHistory(updated);
                 }}
                 onBackToOutlines={() => setStep('outlines')}
+                onNewDocument={handleStartNewDoc}
                 authorName={currentDoc.authorName}
                 institution={currentDoc.institution}
               />
@@ -396,6 +445,7 @@ export default function HomePage() {
                   saveDocumentToHistory(doc);
                 }}
                 onBackToOutlines={() => setStep('outlines')}
+                onNewDocument={handleStartNewDoc}
                 userApiKey={
                   aiSettings.provider === 'gemini'
                     ? aiSettings.geminiApiKey
@@ -420,7 +470,7 @@ export default function HomePage() {
         isOpen={isAuthOpen}
         onClose={() => setIsAuthOpen(false)}
         currentUser={user}
-        onSaveUser={(updated) => saveUserData({ ...user, ...updated })}
+        onSaveUser={(updated) => saveUserData((prev) => ({ ...prev, ...updated }))}
         onResetTestLimit={handleResetTestLimit}
       />
 

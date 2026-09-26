@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Sparkles, Crown, GraduationCap, FileText, Settings, User, CreditCard, LogOut } from 'lucide-react';
+import { Sparkles, Crown, GraduationCap, FileText, Settings, User, LogOut, Lock } from 'lucide-react';
 import { UserAccount } from '@/types';
 
 interface NavbarProps {
@@ -12,6 +12,7 @@ interface NavbarProps {
   onLogout?: () => void;
   currentTab: 'create' | 'my-docs';
   onSelectTab: (tab: 'create' | 'my-docs') => void;
+  onNewDoc: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -22,6 +23,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onLogout,
   currentTab,
   onSelectTab,
+  onNewDoc,
 }) => {
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-200/80 bg-white/90 backdrop-blur-md dark:border-slate-800 dark:bg-slate-950/90">
@@ -50,7 +52,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Center Tabs */}
         <nav className="hidden md:flex items-center gap-1 rounded-xl bg-slate-100/80 p-1 dark:bg-slate-900">
           <button
-            onClick={() => onSelectTab('create')}
+            onClick={onNewDoc}
             className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${
               currentTab === 'create'
                 ? 'bg-white text-blue-600 shadow-sm dark:bg-slate-800 dark:text-blue-400'
@@ -77,21 +79,42 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="flex items-center gap-3">
           {/* Subscription Status or Upgrade */}
           {user.isSubscribed ? (
-            <div className="flex items-center gap-1.5 rounded-full bg-amber-500/10 px-3 py-1.5 text-xs font-semibold text-amber-700 border border-amber-500/20 dark:text-amber-300">
+            <div className="flex items-center gap-1.5 rounded-full bg-amber-500/10 px-3 py-1.5 text-xs font-bold text-amber-700 border border-amber-500/20 dark:text-amber-300">
               <Crown className="h-4 w-4 fill-amber-500 text-amber-500" />
-              <span>PRO Obuna</span>
+              <span>PRO Obuna Faol</span>
+            </div>
+          ) : user.freeGenerationsLeft <= 0 ? (
+            /* Paid Mode Alert */
+            <div className="flex items-center gap-2">
+              <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-rose-100 px-2.5 py-1 text-[11px] font-bold text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-200 dark:border-rose-900">
+                <Lock className="h-3 w-3" />
+                <span>Pullik rejim</span>
+              </span>
+              <button
+                onClick={onOpenSubscribe}
+                className="group relative flex items-center gap-1.5 overflow-hidden rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 px-3.5 py-1.5 text-xs sm:text-sm font-bold text-white shadow-md shadow-orange-500/25 transition-all hover:scale-[1.02] active:scale-[0.98]"
+              >
+                <Crown className="h-4 w-4" />
+                <span>15 000 so'm / oy</span>
+                <span className="hidden md:inline-block rounded bg-white/20 px-1.5 py-0.5 text-[10px]">
+                  Obuna bo'lish
+                </span>
+              </button>
             </div>
           ) : (
-            <button
-              onClick={onOpenSubscribe}
-              className="group relative flex items-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-3.5 py-1.5 text-xs sm:text-sm font-semibold text-white shadow-sm transition-all hover:scale-[1.02] hover:shadow-orange-500/20 active:scale-[0.98]"
-            >
-              <Crown className="h-4 w-4" />
-              <span>15 000 so'm / oy</span>
-              <span className="hidden sm:inline-block rounded bg-white/20 px-1.5 py-0.2 text-[10px]">
-                Obuna bo'lish
+            /* Free Trial Active */
+            <div className="flex items-center gap-2">
+              <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-1 text-[11px] font-bold text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900">
+                <span>1 ta bepul qoldi</span>
               </span>
-            </button>
+              <button
+                onClick={onOpenSubscribe}
+                className="group relative flex items-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-3.5 py-1.5 text-xs sm:text-sm font-semibold text-white shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98]"
+              >
+                <Crown className="h-4 w-4" />
+                <span>15 000 so'm / oy</span>
+              </button>
+            </div>
           )}
 
           {/* API Settings */}

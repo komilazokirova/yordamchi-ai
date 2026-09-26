@@ -15,13 +15,15 @@ import {
   User,
   Building,
   Calendar,
-  Layers
+  Layers,
+  Plus
 } from 'lucide-react';
 
 interface AcademicEditorProps {
   document: AcademicDocument;
   onUpdateDocument: (doc: AcademicDocument) => void;
   onBackToOutlines: () => void;
+  onNewDocument?: () => void;
   userApiKey?: string;
   provider?: 'gemini' | 'openai';
 }
@@ -30,6 +32,7 @@ export const AcademicEditor: React.FC<AcademicEditorProps> = ({
   document: doc,
   onUpdateDocument,
   onBackToOutlines,
+  onNewDocument,
   userApiKey,
   provider,
 }) => {
@@ -99,6 +102,16 @@ export const AcademicEditor: React.FC<AcademicEditorProps> = ({
         </div>
 
         <div className="flex items-center gap-2">
+          {onNewDocument && (
+            <button
+              onClick={onNewDocument}
+              className="flex items-center gap-1.5 rounded-xl border border-blue-500/30 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-100 dark:border-blue-900/50 dark:bg-blue-950/40 dark:text-blue-300 transition-colors"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">+ Yangi yaratish</span>
+            </button>
+          )}
+
           <button
             onClick={() => window.print()}
             className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-300"

@@ -13,7 +13,8 @@ import {
   Crown,
   CheckCircle2,
   Sliders,
-  Layers
+  Layers,
+  Lock
 } from 'lucide-react';
 
 interface CreateWizardProps {
@@ -138,37 +139,76 @@ export const CreateWizard: React.FC<CreateWizardProps> = ({
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
       
-      {/* Banner: Free Trial or Active Pro */}
-      <div className="mb-6 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 p-4 text-white shadow-lg shadow-indigo-500/20 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-3 text-center sm:text-left">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/20 backdrop-blur-md">
-            {isSubscribed ? <Crown className="h-6 w-6 text-amber-300" /> : <Sparkles className="h-6 w-6 text-amber-300" />}
-          </div>
-          <div>
-            <h3 className="text-base font-bold">
-              {isSubscribed
-                ? "Sizda Yordamchi AI PRO faol — Cheksiz generatsiya!"
-                : freeGenerationsLeft > 0
-                ? "1-hujjat (10 bet yoki 10 slayd) siz uchun mutlaqo BEPUL!"
-                : "Bepul limitingiz yakunlangan"}
-            </h3>
-            <p className="text-xs text-white/80">
-              {isSubscribed
-                ? "Barcha turdagi ilmiy ishlar va Canva prezentatsiyalari ochiq."
-                : "Keyingi barcha hujjatlar va cheksiz foydalanish oylik atigi 15 000 so'm."}
-            </p>
+      {/* Banner: Free Trial, Paid Mode Alert, or Active Pro */}
+      {isSubscribed ? (
+        <div className="mb-6 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-600 p-4 text-white shadow-lg shadow-emerald-500/20 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3 text-center sm:text-left">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/20 backdrop-blur-md">
+              <Crown className="h-6 w-6 text-amber-300" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold">
+                Sizda Yordamchi AI PRO faol — Cheksiz generatsiya!
+              </h3>
+              <p className="text-xs text-white/80">
+                Barcha turdagi ilmiy ishlar va Canva prezentatsiyalari ochiq.
+              </p>
+            </div>
           </div>
         </div>
+      ) : freeGenerationsLeft <= 0 ? (
+        <div className="mb-6 rounded-2xl bg-gradient-to-r from-rose-600 via-orange-600 to-amber-600 p-4 text-white shadow-lg shadow-orange-500/20 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 border border-rose-400/30">
+          <div className="flex items-center gap-3 text-center sm:text-left">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/20 backdrop-blur-md">
+              <Lock className="h-6 w-6 text-amber-200" />
+            </div>
+            <div>
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-black/25 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-amber-200 mb-1">
+                <span>🔒 Pullik Rejim Faollashdi</span>
+              </div>
+              <h3 className="text-base font-bold">
+                1 ta bepul limitingiz tugadi (1/1 ishlatildi)!
+              </h3>
+              <p className="text-xs text-white/90">
+                Keyingi barcha prezentatsiyalar, kurs ishlari va referatlarni yaratish uchun oylik obunani (15 000 so'm) faollashtiring.
+              </p>
+            </div>
+          </div>
 
-        {!isSubscribed && (
           <button
+            type="button"
+            onClick={onOpenSubscribe}
+            className="shrink-0 flex items-center gap-2 rounded-xl bg-amber-400 px-5 py-2.5 text-xs font-black text-slate-950 shadow-md hover:bg-amber-300 active:scale-95 transition-all"
+          >
+            <Crown className="h-4 w-4" />
+            <span>Obuna: 15 000 so'm/oy</span>
+          </button>
+        </div>
+      ) : (
+        <div className="mb-6 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 p-4 text-white shadow-lg shadow-indigo-500/20 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3 text-center sm:text-left">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/20 backdrop-blur-md">
+              <Sparkles className="h-6 w-6 text-amber-300" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold">
+                1-hujjat (10 bet yoki 10 slayd) siz uchun mutlaqo BEPUL!
+              </h3>
+              <p className="text-xs text-white/80">
+                Dastlabki 1 ta prezentatsiya yoki referatingizni bepul sinab ko'ring.
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
             onClick={onOpenSubscribe}
             className="shrink-0 rounded-xl bg-amber-400 px-4 py-2 text-xs font-bold text-slate-950 shadow-md hover:bg-amber-300 active:scale-95"
           >
             Obuna: 15 000 so'm/oy
           </button>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Main Creation Card */}
       <div className="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xl dark:border-slate-800 dark:bg-slate-900 sm:p-8">
@@ -373,26 +413,40 @@ export const CreateWizard: React.FC<CreateWizardProps> = ({
 
           {/* Submit Button */}
           <div className="pt-2">
-            <button
-              type="submit"
-              disabled={isLoading || !topic.trim()}
-              className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 py-4 text-base font-bold text-white shadow-xl shadow-indigo-500/25 transition-all hover:scale-[1.01] hover:shadow-indigo-500/35 active:scale-[0.99] disabled:opacity-50"
-            >
-              {isLoading ? (
-                <>
-                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                  <span>AI rejalarni tuzmoqda...</span>
-                </>
-              ) : (
-                <>
-                  <Sparkles className="h-5 w-5" />
-                  <span>
-                    {targetCount} {docType === 'presentation' ? 'ta slaydli' : 'betlik'} rejalarni tuzish
-                  </span>
-                  <ArrowRight className="h-5 w-5 ml-1" />
-                </>
-              )}
-            </button>
+            {!isSubscribed && freeGenerationsLeft <= 0 ? (
+              <button
+                type="button"
+                onClick={onOpenSubscribe}
+                className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-rose-600 py-4 text-base font-extrabold text-white shadow-xl shadow-orange-500/25 transition-all hover:scale-[1.01] hover:shadow-orange-500/35 active:scale-[0.99]"
+              >
+                <Lock className="h-5 w-5 text-amber-200" />
+                <span>
+                  🔒 Pullik rejim: Davom etish uchun obuna bo'ling (15 000 so'm / oy)
+                </span>
+                <ArrowRight className="h-5 w-5 ml-1" />
+              </button>
+            ) : (
+              <button
+                type="submit"
+                disabled={isLoading || !topic.trim()}
+                className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 py-4 text-base font-bold text-white shadow-xl shadow-indigo-500/25 transition-all hover:scale-[1.01] hover:shadow-indigo-500/35 active:scale-[0.99] disabled:opacity-50"
+              >
+                {isLoading ? (
+                  <>
+                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    <span>AI rejalarni tuzmoqda...</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-5 w-5" />
+                    <span>
+                      {targetCount} {docType === 'presentation' ? 'ta slaydli' : 'betlik'} rejalarni tuzish
+                    </span>
+                    <ArrowRight className="h-5 w-5 ml-1" />
+                  </>
+                )}
+              </button>
+            )}
           </div>
 
         </form>
