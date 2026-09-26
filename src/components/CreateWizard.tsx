@@ -34,6 +34,7 @@ interface CreateWizardProps {
   isSubscribed: boolean;
   freeGenerationsLeft: number;
   onOpenSubscribe: () => void;
+  onResetTestLimit?: () => void;
 }
 
 export const CreateWizard: React.FC<CreateWizardProps> = ({
@@ -44,6 +45,7 @@ export const CreateWizard: React.FC<CreateWizardProps> = ({
   isSubscribed,
   freeGenerationsLeft,
   onOpenSubscribe,
+  onResetTestLimit,
 }) => {
   const [topic, setTopic] = useState('');
   const [docType, setDocType] = useState<DocType>('presentation');
@@ -163,50 +165,65 @@ export const CreateWizard: React.FC<CreateWizardProps> = ({
               <Lock className="h-6 w-6 text-amber-200" />
             </div>
             <div>
-              <div className="inline-flex items-center gap-1.5 rounded-full bg-black/25 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-amber-200 mb-1">
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-black/30 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-amber-200 mb-1">
                 <span>🔒 Pullik Rejim Faollashdi</span>
               </div>
               <h3 className="text-base font-bold">
-                1 ta bepul limitingiz tugadi (1/1 ishlatildi)!
+                1 ta bepul sinovingiz tugadi (1/1 ishlatildi)!
               </h3>
               <p className="text-xs text-white/90">
-                Keyingi barcha prezentatsiyalar, kurs ishlari va referatlarni yaratish uchun oylik obunani (15 000 so'm) faollashtiring.
+                Siz 1 ta hujjatingizni bepul sinab ko'rdingiz. 2-hujjatdan boshlab barcha prezentatsiyalar va ilmiy ishlarni yaratish uchun oylik obunani (15 000 so'm) faollashtiring.
               </p>
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={onOpenSubscribe}
-            className="shrink-0 flex items-center gap-2 rounded-xl bg-amber-400 px-5 py-2.5 text-xs font-black text-slate-950 shadow-md hover:bg-amber-300 active:scale-95 transition-all"
-          >
-            <Crown className="h-4 w-4" />
-            <span>Obuna: 15 000 so'm/oy</span>
-          </button>
+          <div className="flex flex-col sm:flex-row items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={onOpenSubscribe}
+              className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl bg-amber-400 px-5 py-2.5 text-xs font-black text-slate-950 shadow-md hover:bg-amber-300 active:scale-95 transition-all"
+            >
+              <Crown className="h-4 w-4" />
+              <span>Obuna: 15 000 so'm/oy</span>
+            </button>
+
+            {onResetTestLimit && (
+              <button
+                type="button"
+                onClick={onResetTestLimit}
+                title="Test rejimida 1-bepul sinovni qayta yoqish"
+                className="w-full sm:w-auto rounded-xl bg-white/20 hover:bg-white/30 px-3 py-2 text-[11px] font-bold text-white transition-all border border-white/25"
+              >
+                🔄 Testni qayta boshlash
+              </button>
+            )}
+          </div>
         </div>
       ) : (
-        <div className="mb-6 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 p-4 text-white shadow-lg shadow-indigo-500/20 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="mb-6 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 p-4 text-white shadow-lg shadow-indigo-500/20 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 border border-blue-400/30">
           <div className="flex items-center gap-3 text-center sm:text-left">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/20 backdrop-blur-md">
               <Sparkles className="h-6 w-6 text-amber-300" />
             </div>
             <div>
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-400/25 border border-emerald-300/40 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-emerald-200 mb-1">
+                <span>🎁 1-HUJJAT SIZ UCHUN 100% BEPUL</span>
+              </div>
               <h3 className="text-base font-bold">
-                1-hujjat (10 bet yoki 10 slayd) siz uchun mutlaqo BEPUL!
+                Sayt sifatini sinab ko'rish uchun 1-taqdimot yoki referatingiz BEPUL!
               </h3>
-              <p className="text-xs text-white/80">
-                Dastlabki 1 ta prezentatsiya yoki referatingizni bepul sinab ko'ring.
+              <p className="text-xs text-white/90">
+                Canva dizaynlari, mavzuga mos rasmlar va PowerPoint (.pptx) yuklab olishni to'liq bepul sinab ko'ring. 2-hujjatingizdan boshlab esa pullik rejimga (15 000 so'm/oy) o'tadi.
               </p>
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={onOpenSubscribe}
-            className="shrink-0 rounded-xl bg-amber-400 px-4 py-2 text-xs font-bold text-slate-950 shadow-md hover:bg-amber-300 active:scale-95"
-          >
-            Obuna: 15 000 so'm/oy
-          </button>
+          <div className="shrink-0 text-center sm:text-right">
+            <span className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-500/30 border border-emerald-400/50 px-3.5 py-2 text-xs font-bold text-emerald-100 shadow-inner">
+              <span className="h-2 w-2 rounded-full bg-emerald-300 animate-ping" />
+              <span>1 ta bepul sinov faol</span>
+            </span>
+          </div>
         </div>
       )}
 
@@ -438,9 +455,9 @@ export const CreateWizard: React.FC<CreateWizardProps> = ({
                   </>
                 ) : (
                   <>
-                    <Sparkles className="h-5 w-5" />
+                    <Sparkles className="h-5 w-5 text-amber-300" />
                     <span>
-                      {targetCount} {docType === 'presentation' ? 'ta slaydli' : 'betlik'} rejalarni tuzish
+                      {targetCount} {docType === 'presentation' ? 'ta slaydli' : 'betlik'} rejalarni tuzish {!isSubscribed && freeGenerationsLeft > 0 ? '(1-bepul sinov)' : ''}
                     </span>
                     <ArrowRight className="h-5 w-5 ml-1" />
                   </>

@@ -69,11 +69,6 @@ export default function HomePage() {
       const storedUser = localStorage.getItem('yordamchi_ai_user') || localStorage.getItem('talaba_ai_user');
       if (storedUser) {
         const parsed = JSON.parse(storedUser);
-        // CRUCIAL: If user is not subscribed and has already created at least 1 document (or totalGenerated >= 1),
-        // enforce freeGenerationsLeft = 0 immediately!
-        if (!parsed.isSubscribed && (parsed.totalGenerated >= 1 || (parsed.savedDocs && parsed.savedDocs.length >= 1))) {
-          parsed.freeGenerationsLeft = 0;
-        }
         setUser(parsed);
       }
       const storedSettings = localStorage.getItem('yordamchi_ai_settings') || localStorage.getItem('talaba_ai_settings');
@@ -396,6 +391,7 @@ export default function HomePage() {
                 isSubscribed={user.isSubscribed}
                 freeGenerationsLeft={user.freeGenerationsLeft}
                 onOpenSubscribe={() => setIsSubscribeOpen(true)}
+                onResetTestLimit={handleResetTestLimit}
               />
             )}
 
