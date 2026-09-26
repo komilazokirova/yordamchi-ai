@@ -14,7 +14,13 @@ import {
   CheckCircle2,
   Sliders,
   Layers,
-  Lock
+  Lock,
+  Building,
+  User,
+  Award,
+  ChevronDown,
+  ChevronUp,
+  Hash
 } from 'lucide-react';
 
 interface CreateWizardProps {
@@ -103,34 +109,38 @@ export const CreateWizard: React.FC<CreateWizardProps> = ({
     {
       id: 'presentation' as DocType,
       title: 'Taqdimot (Prezentatsiya)',
-      desc: 'Canva uslubida fonlar, rasmlar va PowerPoint (.pptx) yuklab olish',
+      desc: 'Canva uslubida rang-barang slaydlar, rasmlar va PowerPoint (.pptx) yuklab olish',
       icon: Presentation,
       badge: 'Canva & PPTX',
-      badgeColor: 'bg-orange-100 text-orange-800 dark:bg-orange-950/60 dark:text-orange-300',
+      badgeColor: 'bg-orange-100 text-orange-800 dark:bg-orange-950/60 dark:text-orange-300 ring-1 ring-orange-500/20',
+      iconBg: 'bg-gradient-to-br from-orange-500 to-amber-500 text-white shadow-orange-500/25',
     },
     {
       id: 'coursework' as DocType,
       title: 'Kurs Ishi',
-      desc: 'Titul, mundarija, 2-3 bob, xulosa, adabiyotlar va Word (.docx)',
+      desc: 'Titul, mundarija, 2-3 bob, xulosa, adabiyotlar va Word (.docx) format',
       icon: BookOpen,
       badge: 'OTM Standarti',
-      badgeColor: 'bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300',
+      badgeColor: 'bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300 ring-1 ring-blue-500/20',
+      iconBg: 'bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-blue-500/25',
     },
     {
       id: 'independent' as DocType,
       title: 'Mustaqil Ish',
-      desc: 'Rejalar asosida chuqur ilmiy tahliliy matn va Word (.docx)',
+      desc: 'Rejalar asosida chuqur ilmiy tahliliy matn, xulosalar va Word (.docx)',
       icon: FileCheck2,
       badge: 'A4 Word',
-      badgeColor: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300',
+      badgeColor: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 ring-1 ring-emerald-500/20',
+      iconBg: 'bg-gradient-to-br from-emerald-600 to-teal-600 text-white shadow-emerald-500/25',
     },
     {
       id: 'referat' as DocType,
       title: 'Referat',
-      desc: 'Kirish, asosiy qismlar, xulosalar, manbalar va Word (.docx)',
+      desc: 'Kirish, asosiy qismlar, xulosalar, manbalar va tayyor Word (.docx)',
       icon: FileText,
       badge: 'Tezkor',
-      badgeColor: 'bg-purple-100 text-purple-800 dark:bg-purple-950/60 dark:text-purple-300',
+      badgeColor: 'bg-purple-100 text-purple-800 dark:bg-purple-950/60 dark:text-purple-300 ring-1 ring-purple-500/20',
+      iconBg: 'bg-gradient-to-br from-purple-600 to-fuchsia-600 text-white shadow-purple-500/25',
     },
   ];
 
@@ -141,50 +151,93 @@ export const CreateWizard: React.FC<CreateWizardProps> = ({
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
       
-      {/* Banner: Free Trial, Paid Mode Alert, or Active Pro */}
+      {/* Visual Step Progress Indicator */}
+      <div className="mb-8 flex items-center justify-center">
+        <div className="inline-flex items-center gap-2 sm:gap-3 rounded-full bg-slate-100/80 p-1.5 ring-1 ring-slate-200/80 dark:bg-slate-900/80 dark:ring-slate-800">
+          <div className="flex items-center gap-2 rounded-full bg-blue-600 px-3.5 py-1 text-xs font-bold text-white shadow-sm">
+            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-white text-[10px] font-black text-blue-600">
+              1
+            </span>
+            <span>Mavzu va Parametrlar</span>
+          </div>
+          <div className="h-0.5 w-4 bg-slate-300 dark:bg-slate-700" />
+          <div className="flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-slate-500 dark:text-slate-400">
+            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-slate-200 text-[10px] font-bold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+              2
+            </span>
+            <span>Rejalar</span>
+          </div>
+          <div className="h-0.5 w-4 bg-slate-300 dark:bg-slate-700" />
+          <div className="flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-slate-500 dark:text-slate-400">
+            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-slate-200 text-[10px] font-bold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+              3
+            </span>
+            <span>Natija</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Hero Welcome Header */}
+      <div className="mb-6 text-center">
+        <div className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3.5 py-1 text-xs font-bold text-blue-700 ring-1 ring-blue-500/20 dark:bg-blue-950/60 dark:text-blue-300 mb-2.5">
+          <Sparkles className="h-3.5 w-3.5 text-blue-500 animate-pulse" />
+          <span>OTM Standartlari Asosida Sun'iy Intellekt</span>
+        </div>
+        <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white">
+          Akademik Ishlar va Canva Slaydlari Generatori
+        </h1>
+        <p className="mt-1.5 text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-xl mx-auto">
+          Mavzuni kiriting — sun'iy intellekt rejalari, tahlillari, rasmlari va Word/PowerPoint faylini tayyorlab beradi.
+        </p>
+      </div>
+
+      {/* Status Banner: Free Trial, Paid Mode Alert, or Active Pro */}
       {isSubscribed ? (
-        <div className="mb-6 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-600 p-4 text-white shadow-lg shadow-emerald-500/20 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3 text-center sm:text-left">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/20 backdrop-blur-md">
+        <div className="mb-6 overflow-hidden rounded-3xl bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-600 p-5 text-white shadow-xl shadow-emerald-500/20 ring-1 ring-white/20 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5 text-center sm:text-left">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-md shadow-inner">
               <Crown className="h-6 w-6 text-amber-300" />
             </div>
             <div>
+              <div className="inline-flex items-center gap-1 rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-amber-200 mb-0.5">
+                <span>⭐ PRO OBUNA FAOL</span>
+              </div>
               <h3 className="text-base font-bold">
-                Sizda Yordamchi AI PRO faol — Cheksiz generatsiya!
+                Cheksiz generatsiya huquqiga egasiz!
               </h3>
               <p className="text-xs text-white/80">
-                Barcha turdagi ilmiy ishlar va Canva prezentatsiyalari ochiq.
+                Barcha turdagi ilmiy ishlar, Canva taqdimotlari va yuklab olishlar to'liq ochiq.
               </p>
             </div>
           </div>
         </div>
       ) : freeGenerationsLeft <= 0 ? (
-        <div className="mb-6 rounded-2xl bg-gradient-to-r from-rose-600 via-orange-600 to-amber-600 p-4 text-white shadow-lg shadow-orange-500/20 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 border border-rose-400/30">
-          <div className="flex items-center gap-3 text-center sm:text-left">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/20 backdrop-blur-md">
+        <div className="mb-6 overflow-hidden rounded-3xl bg-gradient-to-r from-rose-600 via-orange-600 to-amber-600 p-5 text-white shadow-xl shadow-orange-500/20 ring-1 ring-rose-400/40 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5 text-center sm:text-left">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-black/25 backdrop-blur-md shadow-inner">
               <Lock className="h-6 w-6 text-amber-200" />
             </div>
             <div>
-              <div className="inline-flex items-center gap-1.5 rounded-full bg-black/30 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-amber-200 mb-1">
-                <span>🔒 Pullik Rejim Faollashdi</span>
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-black/35 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-amber-200 mb-1">
+                <span>🔒 PULLIK REJIMGA O'TDINGIZ</span>
               </div>
               <h3 className="text-base font-bold">
-                1 ta bepul sinovingiz tugadi (1/1 ishlatildi)!
+                1 ta bepul sinov yakunlandi (1/1 ishlatildi)!
               </h3>
-              <p className="text-xs text-white/90">
-                Siz 1 ta hujjatingizni bepul sinab ko'rdingiz. 2-hujjatdan boshlab barcha prezentatsiyalar va ilmiy ishlarni yaratish uchun oylik obunani (15 000 so'm) faollashtiring.
+              <p className="text-xs text-white/90 max-w-lg">
+                Siz 1 ta hujjatingizni bepul sinab ko'rdingiz. Keyingi barcha taqdimotlar va ilmiy ishlarni cheksiz yaratish uchun oylik obunani (15 000 so'm) faollashtiring.
               </p>
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center gap-2 shrink-0">
+          <div className="flex flex-col sm:flex-row items-center gap-2 shrink-0 w-full sm:w-auto">
             <button
               type="button"
               onClick={onOpenSubscribe}
-              className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl bg-amber-400 px-5 py-2.5 text-xs font-black text-slate-950 shadow-md hover:bg-amber-300 active:scale-95 transition-all"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-2xl bg-amber-400 px-5 py-3 text-xs font-black text-slate-950 shadow-lg shadow-amber-950/20 hover:bg-amber-300 active:scale-95 transition-all"
             >
               <Crown className="h-4 w-4" />
-              <span>Obuna: 15 000 so'm/oy</span>
+              <span>Obuna bo'lish: 15 000 so'm</span>
             </button>
 
             {onResetTestLimit && (
@@ -192,34 +245,34 @@ export const CreateWizard: React.FC<CreateWizardProps> = ({
                 type="button"
                 onClick={onResetTestLimit}
                 title="Test rejimida 1-bepul sinovni qayta yoqish"
-                className="w-full sm:w-auto rounded-xl bg-white/20 hover:bg-white/30 px-3 py-2 text-[11px] font-bold text-white transition-all border border-white/25"
+                className="w-full sm:w-auto rounded-2xl bg-white/20 hover:bg-white/30 px-3 py-2.5 text-[11px] font-bold text-white transition-all ring-1 ring-white/25"
               >
-                🔄 Testni qayta boshlash
+                🔄 Testni qaytarish
               </button>
             )}
           </div>
         </div>
       ) : (
-        <div className="mb-6 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 p-4 text-white shadow-lg shadow-indigo-500/20 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 border border-blue-400/30">
-          <div className="flex items-center gap-3 text-center sm:text-left">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/20 backdrop-blur-md">
+        <div className="mb-6 overflow-hidden rounded-3xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 p-5 text-white shadow-xl shadow-indigo-500/20 ring-1 ring-white/20 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5 text-center sm:text-left">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-md shadow-inner">
               <Sparkles className="h-6 w-6 text-amber-300" />
             </div>
             <div>
-              <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-400/25 border border-emerald-300/40 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-emerald-200 mb-1">
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-400/25 ring-1 ring-emerald-300/40 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-emerald-200 mb-1">
                 <span>🎁 1-HUJJAT SIZ UCHUN 100% BEPUL</span>
               </div>
               <h3 className="text-base font-bold">
-                Sayt sifatini sinab ko'rish uchun 1-taqdimot yoki referatingiz BEPUL!
+                Platforma sifatini sinash uchun 1-taqdimot yoki referat BEPUL!
               </h3>
               <p className="text-xs text-white/90">
-                Canva dizaynlari, mavzuga mos rasmlar va PowerPoint (.pptx) yuklab olishni to'liq bepul sinab ko'ring. 2-hujjatingizdan boshlab esa pullik rejimga (15 000 so'm/oy) o'tadi.
+                Canva dizaynlari, rasmlar va PowerPoint (.pptx) yuklab olishni bepul sinab ko'ring. Keyingi hujjatingizdan boshlab esa qulay pullik rejimga (15 000 so'm/oy) o'tadi.
               </p>
             </div>
           </div>
 
           <div className="shrink-0 text-center sm:text-right">
-            <span className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-500/30 border border-emerald-400/50 px-3.5 py-2 text-xs font-bold text-emerald-100 shadow-inner">
+            <span className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500/30 ring-1 ring-emerald-400/50 px-4 py-2 text-xs font-black text-emerald-100 shadow-inner">
               <span className="h-2 w-2 rounded-full bg-emerald-300 animate-ping" />
               <span>1 ta bepul sinov faol</span>
             </span>
@@ -228,16 +281,20 @@ export const CreateWizard: React.FC<CreateWizardProps> = ({
       )}
 
       {/* Main Creation Card */}
-      <div className="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xl dark:border-slate-800 dark:bg-slate-900 sm:p-8">
+      <div className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-xl backdrop-blur-sm dark:border-slate-800 dark:bg-slate-900/95 sm:p-8">
         
         <form onSubmit={handleSubmit} className="space-y-6">
           
           {/* Step 1: Document Type Selection */}
           <div>
-            <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-              1. Hujjat turini tanlang:
-            </label>
-            <div className="mt-2.5 grid gap-3 sm:grid-cols-2">
+            <div className="flex items-center justify-between mb-3">
+              <label className="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-100 text-[11px] font-black text-blue-700 dark:bg-blue-950 dark:text-blue-300">1</span>
+                <span>Hujjat turini tanlang:</span>
+              </label>
+            </div>
+            
+            <div className="grid gap-3.5 sm:grid-cols-2">
               {docTypesConfig.map((item) => {
                 const Icon = item.icon;
                 const isSelected = docType === item.id;
@@ -246,58 +303,63 @@ export const CreateWizard: React.FC<CreateWizardProps> = ({
                     key={item.id}
                     type="button"
                     onClick={() => setDocType(item.id)}
-                    className={`group relative flex items-start gap-3.5 rounded-2xl border p-4 text-left transition-all ${
+                    className={`group relative flex items-start gap-3.5 rounded-2xl border p-4 text-left transition-all duration-200 ${
                       isSelected
-                        ? 'border-blue-600 bg-blue-50/60 dark:border-blue-500 dark:bg-blue-950/30 ring-2 ring-blue-500/20 shadow-md'
-                        : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50/50 dark:border-slate-800 dark:hover:bg-slate-800/40'
+                        ? 'border-blue-600 bg-blue-50/70 dark:border-blue-500 dark:bg-blue-950/35 ring-2 ring-blue-500/25 shadow-md shadow-blue-500/10'
+                        : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50/60 dark:border-slate-800 dark:hover:bg-slate-800/40 hover:-translate-y-0.5'
                     }`}
                   >
-                    <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-colors ${
-                      isSelected
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-slate-100 text-slate-600 group-hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'
-                    }`}>
+                    <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl shadow-md transition-transform group-hover:scale-105 ${item.iconBg}`}>
                       <Icon className="h-5 w-5" />
                     </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <span className={`text-sm font-bold ${isSelected ? 'text-blue-900 dark:text-blue-200' : 'text-slate-900 dark:text-white'}`}>
+                    
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-1">
+                        <span className={`text-sm font-bold truncate ${isSelected ? 'text-blue-950 dark:text-blue-100' : 'text-slate-900 dark:text-white'}`}>
                           {item.title}
                         </span>
-                        <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${item.badgeColor}`}>
+                        <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold shrink-0 ${item.badgeColor}`}>
                           {item.badge}
                         </span>
                       </div>
-                      <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                      <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-2">
                         {item.desc}
                       </p>
                     </div>
+
+                    {isSelected && (
+                      <div className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-white shadow-sm ring-2 ring-white dark:ring-slate-900">
+                        <CheckCircle2 className="h-3.5 w-3.5" />
+                      </div>
+                    )}
                   </button>
                 );
               })}
             </div>
           </div>
 
-          {/* Step 2: Choose Count (Slaydlar yoki Betlar soni) - FOYDALANUVCHI TALABI */}
-          <div className="rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50/60 to-indigo-50/40 p-4 dark:border-slate-800 dark:from-slate-800/60 dark:to-slate-900/60">
+          {/* Step 2: Choose Count (Slaydlar yoki Betlar soni) */}
+          <div className="rounded-3xl border border-blue-100 bg-gradient-to-br from-blue-50/70 via-indigo-50/40 to-slate-50/50 p-4 sm:p-5 dark:border-slate-800 dark:from-slate-800/70 dark:via-slate-900/60 dark:to-slate-900/40">
             <div className="flex items-center justify-between mb-2">
-              <label className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-blue-900 dark:text-blue-300">
-                <Sliders className="h-4 w-4 text-blue-600" />
+              <label className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-blue-900 dark:text-blue-300">
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-[11px] font-black text-white">2</span>
+                <Sliders className="h-3.5 w-3.5 text-blue-600" />
                 <span>
                   {docType === 'presentation'
-                    ? "2. Slaydlar sonini tanlang:"
-                    : "2. Hujjat hajmini (betlar sonini) tanlang:"}
+                    ? "Slaydlar sonini tanlang:"
+                    : "Hujjat hajmini (betlar sonini) tanlang:"}
                 </span>
               </label>
-              <span className="rounded-full bg-blue-600 px-3 py-1 text-xs font-black text-white shadow-sm">
+              
+              <span className="rounded-full bg-blue-600 px-3.5 py-1 text-xs font-black text-white shadow-sm">
                 {targetCount} {docType === 'presentation' ? 'ta slayd' : 'bet'}
               </span>
             </div>
 
-            <p className="text-xs text-slate-600 dark:text-slate-400 mb-3">
+            <p className="text-xs text-slate-600 dark:text-slate-400 mb-3.5">
               {docType === 'presentation'
-                ? "Taqdimotingiz aynan tanlangan miqdordagi slaydlar va rejalardan iborat qilib yaratiladi:"
-                : "Kurs ishi yoki referatingiz belgilangan sahifa hajmiga mos chuqurlikda yoziladi:"}
+                ? "Taqdimotingiz aynan tanlangan hajmga mos rejalardan va to'liq slaydlardan iborat qilinadi:"
+                : "Kurs ishi yoki referatingiz belgilangan sahifa hajmiga mos ilmiy chuqurlikda yoziladi:"}
             </p>
 
             <div className="flex flex-wrap items-center gap-2">
@@ -306,31 +368,38 @@ export const CreateWizard: React.FC<CreateWizardProps> = ({
                 : docType === 'coursework'
                 ? courseworkCountPresets
                 : textDocCountPresets
-              ).map((count) => (
-                <button
-                  key={count}
-                  type="button"
-                  onClick={() => setTargetCount(count)}
-                  className={`rounded-xl px-4 py-2 text-xs font-bold transition-all ${
-                    targetCount === count
-                      ? 'bg-blue-600 text-white shadow-md shadow-blue-500/30 scale-105'
-                      : 'bg-white text-slate-700 border border-slate-200 hover:border-blue-400 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700'
-                  }`}
-                >
-                  {count} {docType === 'presentation' ? 'slayd' : 'bet'}
-                </button>
-              ))}
+              ).map((count) => {
+                const isCurrent = targetCount === count;
+                const isRecommended = (docType === 'presentation' && count === 10) || (docType === 'coursework' && count === 20) || (docType === 'referat' && count === 10);
+                return (
+                  <button
+                    key={count}
+                    type="button"
+                    onClick={() => setTargetCount(count)}
+                    className={`relative rounded-xl px-4 py-2 text-xs font-bold transition-all ${
+                      isCurrent
+                        ? 'bg-blue-600 text-white shadow-md shadow-blue-500/30 scale-105 ring-2 ring-blue-400/40'
+                        : 'bg-white text-slate-700 border border-slate-200/90 hover:border-blue-400 hover:bg-blue-50/50 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700'
+                    }`}
+                  >
+                    <span>{count} {docType === 'presentation' ? 'slayd' : 'bet'}</span>
+                    {isRecommended && !isCurrent && (
+                      <span className="ml-1 text-[9px] font-black text-blue-600 dark:text-blue-400">★</span>
+                    )}
+                  </button>
+                );
+              })}
 
               {/* Custom Number Input */}
-              <div className="flex items-center gap-1.5 ml-auto">
-                <span className="text-[11px] text-slate-500 font-medium">Boshqa hajm:</span>
+              <div className="flex items-center gap-1.5 ml-auto pl-2">
+                <span className="text-[11px] text-slate-500 font-medium">Boshqa:</span>
                 <input
                   type="number"
                   min={3}
                   max={60}
                   value={targetCount}
                   onChange={(e) => setTargetCount(Math.max(3, parseInt(e.target.value) || 3))}
-                  className="w-16 rounded-xl border border-slate-300 bg-white px-2 py-1.5 text-center text-xs font-bold text-slate-900 focus:border-blue-500 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                  className="w-16 rounded-xl border border-slate-300 bg-white px-2 py-1.5 text-center text-xs font-bold text-slate-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                 />
               </div>
             </div>
@@ -338,38 +407,45 @@ export const CreateWizard: React.FC<CreateWizardProps> = ({
 
           {/* Step 3: Topic Input */}
           <div>
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                3. Mavzuni kiriting:
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-100 text-[11px] font-black text-blue-700 dark:bg-blue-950 dark:text-blue-300">3</span>
+                <span>Mavzuni kiriting:</span>
               </label>
-              <span className="text-[11px] text-slate-400">
-                Aniq va to'liq yozing
+              <span className="text-[11px] text-slate-400 font-medium">
+                To'liq va aniq yozing
               </span>
             </div>
             
-            <div className="mt-2 relative">
+            <div className="relative">
               <textarea
                 required
                 rows={3}
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
                 placeholder="Masalan: O'zbekistonda raqamli iqtisodiyotni rivojlantirish istiqbollari..."
-                className="w-full rounded-2xl border border-slate-300 p-4 text-base font-medium text-slate-900 shadow-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white resize-none"
+                className="w-full rounded-2xl border border-slate-300 p-4 text-sm sm:text-base font-medium text-slate-900 shadow-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white resize-none placeholder:text-slate-400"
               />
+              <div className="absolute right-3.5 bottom-3.5 text-slate-300 dark:text-slate-600 pointer-events-none">
+                <Sparkles className="h-4 w-4" />
+              </div>
             </div>
 
-            {/* Quick sample topics */}
-            <div className="mt-2.5">
-              <span className="text-[11px] font-medium text-slate-400">Namunaviy mavzular:</span>
-              <div className="mt-1 flex flex-wrap gap-1.5">
+            {/* Quick Sample Topics */}
+            <div className="mt-3">
+              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                Namunaviy mavzular:
+              </span>
+              <div className="mt-1.5 flex flex-wrap gap-1.5">
                 {sampleTopics.map((sTopic, i) => (
                   <button
                     key={i}
                     type="button"
                     onClick={() => setTopic(sTopic)}
-                    className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] text-slate-600 hover:border-blue-400 hover:text-blue-600 dark:border-slate-800 dark:bg-slate-800/60 dark:text-slate-400"
+                    className="flex items-center gap-1 rounded-xl border border-slate-200/90 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-600 hover:border-blue-400 hover:bg-blue-50/60 hover:text-blue-700 transition-all dark:border-slate-800 dark:bg-slate-800/60 dark:text-slate-400 dark:hover:text-blue-300"
                   >
-                    {sTopic}
+                    <Hash className="h-3 w-3 text-slate-400" />
+                    <span>{sTopic}</span>
                   </button>
                 ))}
               </div>
@@ -381,60 +457,82 @@ export const CreateWizard: React.FC<CreateWizardProps> = ({
             <button
               type="button"
               onClick={() => setShowAdvanced(!showAdvanced)}
-              className="flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400"
+              className="flex items-center gap-2 text-xs font-bold text-blue-600 hover:text-blue-700 dark:text-blue-400 transition-colors"
             >
-              <span>{showAdvanced ? "▲ Qo'shimcha parametrlarni yashirish" : "▼ Titul varag'i va OTM ma'lumotlarini sozlash"}</span>
+              {showAdvanced ? (
+                <>
+                  <ChevronUp className="h-4 w-4" />
+                  <span>Qo'shimcha parametrlarni yashirish</span>
+                </>
+              ) : (
+                <>
+                  <ChevronDown className="h-4 w-4" />
+                  <span>Titul varag'i va OTM ma'lumotlarini sozlash (Universitet, F.I.Sh...)</span>
+                </>
+              )}
             </button>
 
             {showAdvanced && (
-              <div className="mt-4 grid gap-3 sm:grid-cols-2 rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-800">
+              <div className="mt-4 grid gap-3.5 sm:grid-cols-2 rounded-2xl bg-slate-50/80 p-4 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800">
                 <div>
-                  <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-400">Universitet / Institut</label>
+                  <label className="text-[11px] font-bold text-slate-600 dark:text-slate-400 flex items-center gap-1">
+                    <Building className="h-3 w-3 text-blue-500" />
+                    <span>Universitet / Institut</span>
+                  </label>
                   <input
                     type="text"
                     value={university}
                     onChange={(e) => setUniversity(e.target.value)}
-                    className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-1.5 text-xs dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                    className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-medium dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:outline-none focus:border-blue-500"
                   />
                 </div>
                 <div>
-                  <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-400">Fakultet</label>
+                  <label className="text-[11px] font-bold text-slate-600 dark:text-slate-400 flex items-center gap-1">
+                    <GraduationCap className="h-3 w-3 text-blue-500" />
+                    <span>Fakultet / Yo'nalish</span>
+                  </label>
                   <input
                     type="text"
                     value={faculty}
                     onChange={(e) => setFaculty(e.target.value)}
-                    className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-1.5 text-xs dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                    className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-medium dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:outline-none focus:border-blue-500"
                   />
                 </div>
                 <div>
-                  <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-400">Talaba F.I.Sh.</label>
+                  <label className="text-[11px] font-bold text-slate-600 dark:text-slate-400 flex items-center gap-1">
+                    <User className="h-3 w-3 text-blue-500" />
+                    <span>Talaba F.I.Sh.</span>
+                  </label>
                   <input
                     type="text"
                     value={authorName}
                     onChange={(e) => setAuthorName(e.target.value)}
-                    className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-1.5 text-xs dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                    className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-medium dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:outline-none focus:border-blue-500"
                   />
                 </div>
                 <div>
-                  <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-400">Ilmiy Rahbar</label>
+                  <label className="text-[11px] font-bold text-slate-600 dark:text-slate-400 flex items-center gap-1">
+                    <Award className="h-3 w-3 text-blue-500" />
+                    <span>Ilmiy Rahbar</span>
+                  </label>
                   <input
                     type="text"
                     value={supervisorName}
                     onChange={(e) => setSupervisorName(e.target.value)}
-                    className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-1.5 text-xs dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                    className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-medium dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:outline-none focus:border-blue-500"
                   />
                 </div>
               </div>
             )}
           </div>
 
-          {/* Submit Button */}
+          {/* Submit / Proceed CTA Button */}
           <div className="pt-2">
             {!isSubscribed && freeGenerationsLeft <= 0 ? (
               <button
                 type="button"
                 onClick={onOpenSubscribe}
-                className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-rose-600 py-4 text-base font-extrabold text-white shadow-xl shadow-orange-500/25 transition-all hover:scale-[1.01] hover:shadow-orange-500/35 active:scale-[0.99]"
+                className="w-full flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-rose-600 py-4 text-base font-black text-white shadow-xl shadow-orange-500/25 transition-all hover:scale-[1.01] hover:shadow-orange-500/35 active:scale-[0.99]"
               >
                 <Lock className="h-5 w-5 text-amber-200" />
                 <span>
@@ -446,12 +544,12 @@ export const CreateWizard: React.FC<CreateWizardProps> = ({
               <button
                 type="submit"
                 disabled={isLoading || !topic.trim()}
-                className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 py-4 text-base font-bold text-white shadow-xl shadow-indigo-500/25 transition-all hover:scale-[1.01] hover:shadow-indigo-500/35 active:scale-[0.99] disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 py-4 text-base font-black text-white shadow-xl shadow-indigo-500/25 transition-all hover:scale-[1.01] hover:shadow-indigo-500/35 active:scale-[0.99] disabled:opacity-50"
               >
                 {isLoading ? (
                   <>
                     <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                    <span>AI rejalarni tuzmoqda...</span>
+                    <span>Sun'iy intellekt rejalarni tuzmoqda...</span>
                   </>
                 ) : (
                   <>

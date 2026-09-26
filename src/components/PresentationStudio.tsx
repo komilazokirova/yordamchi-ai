@@ -384,7 +384,7 @@ export const PresentationStudio: React.FC<PresentationStudioProps> = ({
             {onNewDocument && (
               <button
                 onClick={onNewDocument}
-                className="flex items-center gap-1.5 rounded-xl border border-blue-500/40 bg-blue-600/20 px-3 py-1.5 text-xs font-semibold text-blue-300 hover:bg-blue-600/30 hover:text-white transition-colors"
+                className="flex items-center gap-1.5 rounded-2xl border border-blue-500/40 bg-blue-600/20 px-3.5 py-2 text-xs font-bold text-blue-300 hover:bg-blue-600/30 hover:text-white transition-all hover:scale-105 active:scale-95"
               >
                 <Plus className="h-3.5 w-3.5 text-blue-400" />
                 <span className="hidden sm:inline">+ Yangi yaratish</span>
@@ -393,16 +393,16 @@ export const PresentationStudio: React.FC<PresentationStudioProps> = ({
 
             <button
               onClick={() => setIsFullscreen(true)}
-              className="flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-1.5 text-xs font-medium text-slate-200 hover:bg-slate-700"
+              className="flex items-center gap-1.5 rounded-2xl border border-slate-700 bg-slate-800/90 px-3.5 py-2 text-xs font-bold text-slate-200 hover:bg-slate-700 transition-all hover:scale-105 active:scale-95"
             >
-              <Play className="h-3.5 w-3.5 fill-current" />
+              <Play className="h-3.5 w-3.5 fill-current text-blue-400" />
               <span className="hidden sm:inline">Namoyish (Slayd-shou)</span>
             </button>
 
             <button
               onClick={handleDownloadPptx}
               disabled={isExporting}
-              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 px-4 py-1.5 text-xs sm:text-sm font-bold text-white shadow-md shadow-orange-500/20 hover:scale-[1.02] active:scale-[0.98]"
+              className="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 px-4 py-2 text-xs sm:text-sm font-black text-white shadow-lg shadow-orange-500/30 ring-1 ring-amber-300/40 hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
             >
               {isExporting ? (
                 <>

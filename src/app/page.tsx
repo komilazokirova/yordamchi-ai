@@ -365,7 +365,14 @@ export default function HomePage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-white">
+    <div className="relative flex min-h-screen flex-col bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-white overflow-x-hidden selection:bg-blue-600 selection:text-white">
+      {/* Ambient decorative background glows */}
+      <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+        <div className="absolute -top-40 left-1/2 -translate-x-1/2 h-[550px] w-[950px] rounded-full bg-gradient-to-b from-blue-500/10 via-indigo-500/5 to-transparent blur-3xl dark:from-blue-600/10 dark:via-indigo-600/5" />
+        <div className="absolute top-[40%] -left-48 h-[450px] w-[500px] rounded-full bg-indigo-500/5 blur-3xl dark:bg-indigo-600/5" />
+        <div className="absolute top-[50%] -right-48 h-[450px] w-[500px] rounded-full bg-violet-500/5 blur-3xl dark:bg-violet-600/5" />
+      </div>
+
       {/* Top Navbar */}
       <Navbar
         user={user}
@@ -465,6 +472,20 @@ export default function HomePage() {
           </>
         )}
       </main>
+
+      {/* Minimal Footer */}
+      {(step === 'wizard' || currentTab === 'my-docs') && (
+        <footer className="border-t border-slate-200/80 bg-white/60 py-6 text-center text-xs text-slate-500 backdrop-blur-sm dark:border-slate-800 dark:bg-slate-950/60 dark:text-slate-400">
+          <div className="mx-auto max-w-7xl px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+            <span>© 2026 Yordamchi AI — O'zbekiston OTM talabalari va tadqiqotchilari uchun maxsus</span>
+            <div className="flex items-center gap-3 text-[11px] text-slate-400 dark:text-slate-500">
+              <span>Toshkent, O'zbekiston</span>
+              <span>•</span>
+              <span>OTM Davlat Standartlari</span>
+            </div>
+          </div>
+        </footer>
+      )}
 
       {/* Modals */}
       <SubscriptionModal
