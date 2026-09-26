@@ -66,16 +66,31 @@ export default function HomePage() {
   // Load state from localStorage on client mount
   useEffect(() => {
     try {
+      // One-time trial reset flag so user testing right now gets their 1 free generation back
+      const trialVersion = localStorage.getItem('yordamchi_trial_v2');
       const storedUser = localStorage.getItem('yordamchi_ai_user') || localStorage.getItem('talaba_ai_user');
-      if (storedUser) {
+
+      if (!trialVersion) {
+        localStorage.setItem('yordamchi_trial_v2', 'true');
+        if (storedUser) {
+          const parsed = JSON.parse(storedUser);
+          if (!parsed.isSubscribed) {
+            parsed.freeGenerationsLeft = 1;
+            localStorage.setItem('yordamchi_ai_user', JSON.stringify(parsed));
+            setUser(parsed);
+          } else {
+            setUser(parsed);
+          }
+        }
+      } else if (storedUser) {
         const parsed = JSON.parse(storedUser);
         setUser(parsed);
       }
+
       const storedSettings = localStorage.getItem('yordamchi_ai_settings') || localStorage.getItem('talaba_ai_settings');
       if (storedSettings) {
         setAiSettings(JSON.parse(storedSettings));
       }
-      // Purge legacy key to prevent old data interference
       localStorage.removeItem('talaba_ai_user');
       localStorage.removeItem('talaba_ai_settings');
     } catch (e) {
@@ -107,11 +122,8 @@ export default function HomePage() {
     }
   };
 
-  // Start creating a new document (with paid mode gate)
+  // Start creating a new document
   const handleStartNewDoc = () => {
-    if (!user.isSubscribed && user.freeGenerationsLeft <= 0) {
-      setIsSubscribeOpen(true);
-    }
     setCurrentDoc(null);
     setStep('wizard');
     setCurrentTab('create');
