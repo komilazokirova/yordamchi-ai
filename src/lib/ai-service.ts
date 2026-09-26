@@ -201,8 +201,8 @@ ${outlines.map((o, i) => `${i + 1}. ${o.title}`).join('\n')}
 
 MUHIM TUZILMA TALABLARI:
 1. 1-slayd: Titul slayd (Mavzu, taqdimotchi, sana).
-2. 2-slayd: ALBATTA "Taqdimot Rejalari" (Mundarija) bo'lsin va uning ichida tanlangan barcha rejalar (${outlines.map(o => o.title).join(', ')}) ro'yxati aynan shu 2-slaydga to'liq kiritilsin (rejalarni hech qachon 2-qism qilib boshqa slaydga ajratma).
-3. Rejalar bo'yicha javoblar: Rejalar soni kam bo'lsa ham, umumiy slaydlar soni ${targetCount} taga yetishi uchun har bir reja yuzasidan 2-3 tadan chuqur tahliliy javob slaydlari tuz (1-qism: Nazariy asoslar, 2-qism: Amaliy tahlil va statistika, 3-qism: Xalqaro tajriba va yechimlar). Har bir slayd 16:9 formatga mos, ixcham va lo'nda bo'lsin (bir slaydga 3-4 tadan ortiq uzun matn kiritma).
+2. Rejalar (Mundarija): Agar tanlangan rejalar soni 4 tadan oshsa (masalan 5..8 ta bo'lsa), ularni 1 ta slaydga tiqishtirmasdan, avtomatik ravishda 2 ta slaydga bo'l: "Taqdimot Rejalari (1-qism)" va "Taqdimot Rejalari (Davomi)". Har bir slaydda ko'pi bilan 4 tadan reja bo'lsin.
+3. Rejalar bo'yicha javoblar: Har bir javob slaydi 16:9 formatga qat'iy mos bo'lsin. Bir slaydga ko'pi bilan 3-4 tadan ortiq fikr (bullet) kiritma. Agar reja bo'yicha ma'lumot ko'p bo'lsa, ikkinchi betni ham o'sha rejaning davomiga ol ("... (Davomi)").
 4. Yakuniy slaydlar: Xulosa va tavsiyalar, hamda "E'tiboringiz uchun rahmat!" slaydi.
 5. Jami natijada roppa-rosa ${targetCount} ta slayd chiqishi shart!
 
@@ -456,19 +456,51 @@ function generateFallbackSlides(
     themeId
   });
 
-  // 2-SLAYD: REJALAR (MUNDARIJA) - Barcha tanlangan rejalar aynan 2-slaydga to'liq kiritiladi
-  slides.push({
-    id: `slide-${currentSlideNum}`,
-    slideNumber: currentSlideNum++,
-    title: "Taqdimot Rejalari (Mundarija)",
-    subtitle: "Taqdimot davomida ko'rib chiqiladigan asosiy masalalar",
-    bullets: outlines.map((out, idx) => `${idx + 1}. ${out.title.replace(/^\d+[\.\)]\s*/, '')}`),
-    notes: "Bugungi taqdimotimizda ko'rib chiqiladigan rejalar bilan tanishing.",
-    layout: 'bullets',
-    imageUrl: getSmartTopicPhoto('rejalar rejalashtirish strategiya', topic, 'Taqdimot Rejalari', 1).url,
-    imageCaption: "Taqdimot Rejalari",
-    themeId
-  });
+  // 2-SLAYD: REJALAR (MUNDARIJA)
+  // Agar rejalar 4 tadan oshsa, 1 ta slaydga tiqilmasligi uchun avtomatik 2 ta slaydga bo'linadi!
+  if (outlines.length <= 4) {
+    slides.push({
+      id: `slide-${currentSlideNum}`,
+      slideNumber: currentSlideNum++,
+      title: "Taqdimot Rejalari (Mundarija)",
+      subtitle: "Taqdimot davomida ko'rib chiqiladigan asosiy masalalar",
+      bullets: outlines.map((out, idx) => `${idx + 1}. ${out.title.replace(/^\d+[\.\)]\s*/, '')}`),
+      notes: "Bugungi taqdimotimizda ko'rib chiqiladigan rejalar bilan tanishing.",
+      layout: 'split',
+      imageUrl: getSmartTopicPhoto('rejalar rejalashtirish strategiya', topic, 'Taqdimot Rejalari', 1).url,
+      imageCaption: "Taqdimot Rejalari",
+      themeId
+    });
+  } else {
+    const part1 = outlines.slice(0, 4);
+    const part2 = outlines.slice(4);
+
+    slides.push({
+      id: `slide-${currentSlideNum}`,
+      slideNumber: currentSlideNum++,
+      title: "Taqdimot Rejalari (1-qism)",
+      subtitle: "Taqdimot davomida ko'rib chiqiladigan dastlabki masalalar",
+      bullets: part1.map((out, idx) => `${idx + 1}. ${out.title.replace(/^\d+[\.\)]\s*/, '')}`),
+      notes: "Bugungi taqdimotimizning dastlabki rejalari bilan tanishing.",
+      layout: 'split',
+      imageUrl: getSmartTopicPhoto('rejalar rejalashtirish strategiya', topic, 'Taqdimot Rejalari 1', 1).url,
+      imageCaption: "Taqdimot Rejalari (1-qism)",
+      themeId
+    });
+
+    slides.push({
+      id: `slide-${currentSlideNum}`,
+      slideNumber: currentSlideNum++,
+      title: "Taqdimot Rejalari (Davomi)",
+      subtitle: "Taqdimotning keyingi rejalari va muhokama bandlari",
+      bullets: part2.map((out, idx) => `${idx + 5}. ${out.title.replace(/^\d+[\.\)]\s*/, '')}`),
+      notes: "Taqdimotimizning davomiy rejalari bilan tanishing.",
+      layout: 'split',
+      imageUrl: getSmartTopicPhoto('reja strategiya maqsad tahlil', topic, 'Taqdimot Rejalari Davomi', 2).url,
+      imageCaption: "Taqdimot Rejalari (Davomi)",
+      themeId
+    });
+  }
 
   // JAVOBLAR UCHUN NECHTA SLAYD AJRATILADI?
   // targetCount ga yetkazish uchun har bir rejaga 1 yoki 2 tadan javob slaydlari beramiz

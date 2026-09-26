@@ -557,20 +557,40 @@ export const PresentationStudio: React.FC<PresentationStudioProps> = ({
 
                     <div className={`grid gap-4 flex-1 items-center overflow-hidden ${currentSlide.imageUrl ? 'grid-cols-1 md:grid-cols-12' : 'grid-cols-1'}`}>
                       {/* Bullets List - 16:9 formatga mos, ortiqcha ma'lumotlar keyingi slaydga o'tadi */}
-                      <div className={`overflow-hidden max-h-[320px] pr-1 ${currentSlide.imageUrl ? 'md:col-span-7 space-y-2' : ''}`}>
+                      <div className={`overflow-hidden max-h-[330px] pr-1 ${currentSlide.imageUrl ? 'md:col-span-7 space-y-1.5' : ''}`}>
+                        {/* Ko'p ma'lumot bo'lsa tezkor 2 ta slaydga bo'lish paneli */}
+                        {currentSlide.bullets.length > (currentSlide.imageUrl ? 4 : 5) && !isFullscreen && (
+                          <div className="mb-2 flex items-center justify-between rounded-xl bg-amber-500/25 border border-amber-400/50 px-3 py-1.5 text-xs text-amber-200 shrink-0">
+                            <span className="flex items-center gap-1.5 font-bold text-[11px] sm:text-xs">
+                              <Sparkles className="h-3.5 w-3.5 text-amber-300 shrink-0" />
+                              Fikrlar ko'p ({currentSlide.bullets.length} ta). Sig'may qolmasligi uchun:
+                            </span>
+                            <button
+                              onClick={() => handleSplitSlide()}
+                              className="flex items-center gap-1 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 px-2 py-0.5 text-[11px] font-black transition-all shadow-md active:scale-95"
+                            >
+                              <Scissors className="h-3 w-3" />
+                              <span>2 ta slaydga bo'lish</span>
+                            </button>
+                          </div>
+                        )}
+
                         <div className={
                           !currentSlide.imageUrl && (currentSlide.bullets.length > 3 || currentSlide.title.toLowerCase().includes('reja'))
                             ? 'grid grid-cols-1 sm:grid-cols-2 gap-2'
-                            : 'space-y-2'
+                            : (currentSlide.bullets.length > 4 ? 'space-y-1.5' : 'space-y-2')
                         }>
                           {currentSlide.bullets.map((bullet, bIdx) => {
                             const isRejaSlide = currentSlideIndex === 1 || currentSlide.title.toLowerCase().includes('reja') || currentSlide.title.toLowerCase().includes('mundarija');
+                            const isCrowded = currentSlide.bullets.length > 4;
                             return (
                               <div
                                 key={bIdx}
-                                className={`group flex items-start gap-2 rounded-xl p-2 transition-all ${currentTheme.cardBg}`}
+                                className={`group flex items-start gap-2 rounded-xl transition-all ${currentTheme.cardBg} ${isCrowded ? 'p-1.5' : 'p-2'}`}
                               >
-                                <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-lg text-xs font-bold ${
+                                <span className={`mt-0.5 flex shrink-0 items-center justify-center rounded-lg text-xs font-bold ${
+                                  isCrowded ? 'h-4 w-4 text-[10px]' : 'h-5 w-5'
+                                } ${
                                   isRejaSlide
                                     ? 'bg-amber-400/20 text-amber-300 border border-amber-400/40'
                                     : `${currentTheme.accentColor} bg-white/10`
@@ -578,13 +598,15 @@ export const PresentationStudio: React.FC<PresentationStudioProps> = ({
                                   {isRejaSlide ? `${bIdx + 1}` : '•'}
                                 </span>
                                 <textarea
-                                  rows={currentSlide.bullets.length > 3 ? 2 : 2}
+                                  rows={isCrowded ? 1 : 2}
                                   value={bullet}
                                   onChange={(e) => handleUpdateBullet(bIdx, e.target.value)}
-                                  className={`flex-1 resize-none bg-transparent text-xs sm:text-[13px] leading-snug focus:outline-none ${currentTheme.textColor}`}
+                                  className={`flex-1 resize-none bg-transparent leading-snug focus:outline-none ${currentTheme.textColor} ${
+                                    isCrowded ? 'text-xs' : 'text-xs sm:text-[13px]'
+                                  }`}
                                 />
                                 {!isFullscreen && (
-                                  <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <div className="flex items-center gap-1 shrink-0 opacity-70 group-hover:opacity-100 transition-opacity">
                                     {currentSlide.bullets.length > 1 && (
                                       <button
                                         onClick={() => handleMoveBulletToNextSlide(bIdx)}
