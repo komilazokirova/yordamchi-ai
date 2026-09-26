@@ -18,6 +18,7 @@ import { PresentationStudio } from '@/components/PresentationStudio';
 import { AcademicEditor } from '@/components/AcademicEditor';
 import { MyDocuments } from '@/components/MyDocuments';
 import { SubscriptionModal } from '@/components/SubscriptionModal';
+import { PhoneAuthModal } from '@/components/PhoneAuthModal';
 import { AuthModal } from '@/components/AuthModal';
 import { SettingsModal } from '@/components/SettingsModal';
 import { DEFAULT_THEME_ID } from '@/lib/slide-themes';
@@ -60,31 +61,38 @@ export default function HomePage() {
 
   // 5. Modals State
   const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSubscribeOpen, setIsSubscribeOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   // Load state from localStorage on client mount
   useEffect(() => {
     try {
-      // One-time trial reset flag so user testing right now gets their 1 free generation back
-      const trialVersion = localStorage.getItem('yordamchi_trial_v2');
       const storedUser = localStorage.getItem('yordamchi_ai_user') || localStorage.getItem('talaba_ai_user');
 
-      if (!trialVersion) {
-        localStorage.setItem('yordamchi_trial_v2', 'true');
-        if (storedUser) {
-          const parsed = JSON.parse(storedUser);
-          if (!parsed.isSubscribed) {
-            parsed.freeGenerationsLeft = 1;
-            localStorage.setItem('yordamchi_ai_user', JSON.stringify(parsed));
-            setUser(parsed);
-          } else {
-            setUser(parsed);
-          }
-        }
-      } else if (storedUser) {
+      if (storedUser) {
         const parsed = JSON.parse(storedUser);
         setUser(parsed);
+
+        // Server bazasi bilan darhol sinxronizatsiya qilish (Inkoginto yoki boshqa oynalardan kelganda ham to'g'ri ko'rinadi)
+        if (parsed.phone) {
+          fetch(`/api/user/sync?phone=${encodeURIComponent(parsed.phone)}`)
+            .then((r) => r.json())
+            .then((data) => {
+              if (data.success && data.user) {
+                setUser((prev) => {
+                  const synced = {
+                    ...prev,
+                    ...data.user,
+                    savedDocs: prev.savedDocs || [],
+                  };
+                  localStorage.setItem('yordamchi_ai_user', JSON.stringify(synced));
+                  return synced;
+                });
+              }
+            })
+            .catch((err) => console.warn('Server sync error:', err));
+        }
       }
 
       const storedSettings = localStorage.getItem('yordamchi_ai_settings') || localStorage.getItem('talaba_ai_settings');
@@ -140,6 +148,12 @@ export default function HomePage() {
     supervisorName: string;
     targetCount: number;
   }) => {
+    // Agar foydalanuvchi hali telefon raqami bilan kirmagan bo'lsa, ro'yxatdan o'tishni so'rash
+    if (!user.phone) {
+      setIsAuthOpen(true);
+      return;
+    }
+
     // Check generation quota: Strict Paid Mode Gate
     if (!user.isSubscribed && user.freeGenerationsLeft <= 0) {
       setIsSubscribeOpen(true);
@@ -190,6 +204,12 @@ export default function HomePage() {
   const handleProceedToContent = async () => {
     if (!currentDoc) return;
 
+    // Agar telefon raqami tasdiqlanmagan bo'lsa
+    if (!user.phone) {
+      setIsAuthOpen(true);
+      return;
+    }
+
     // Strict quota check before generating slides/content
     if (!user.isSubscribed && user.freeGenerationsLeft <= 0) {
       setIsSubscribeOpen(true);
@@ -217,6 +237,24 @@ export default function HomePage() {
         setCurrentDoc(updatedDoc);
         setStep('studio');
 
+        // Serverdagi markazlashgan bazadan limitni 1 taga kamaytirish
+        let serverQuotaLeft = 0;
+        if (user.phone) {
+          try {
+            const qRes = await fetch('/api/user/use-quota', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ phone: user.phone }),
+            });
+            const qData = await qRes.json();
+            if (qData.success && qData.user) {
+              serverQuotaLeft = qData.user.freeGenerationsLeft;
+            }
+          } catch (e) {
+            console.warn('Server quota decrement error:', e);
+          }
+        }
+
         // Atomically save to history, decrement free generations to 0, and increment totalGenerated!
         saveUserData((prev) => {
           const existingIndex = prev.savedDocs.findIndex((d) => d.id === updatedDoc.id);
@@ -224,9 +262,7 @@ export default function HomePage() {
             ? prev.savedDocs.map((d) => (d.id === updatedDoc.id ? updatedDoc : d))
             : [updatedDoc, ...prev.savedDocs];
 
-          const newFreeLeft = !prev.isSubscribed && prev.freeGenerationsLeft > 0
-            ? prev.freeGenerationsLeft - 1
-            : prev.freeGenerationsLeft;
+          const newFreeLeft = !prev.isSubscribed ? serverQuotaLeft : prev.freeGenerationsLeft;
 
           return {
             ...prev,
@@ -256,6 +292,24 @@ export default function HomePage() {
         setCurrentDoc(updatedDoc);
         setStep('academic-editor');
 
+        // Serverdagi markazlashgan bazadan limitni 1 taga kamaytirish
+        let serverQuotaLeft = 0;
+        if (user.phone) {
+          try {
+            const qRes = await fetch('/api/user/use-quota', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ phone: user.phone }),
+            });
+            const qData = await qRes.json();
+            if (qData.success && qData.user) {
+              serverQuotaLeft = qData.user.freeGenerationsLeft;
+            }
+          } catch (e) {
+            console.warn('Server quota decrement error:', e);
+          }
+        }
+
         // Atomically save to history, decrement free generations to 0, and increment totalGenerated!
         saveUserData((prev) => {
           const existingIndex = prev.savedDocs.findIndex((d) => d.id === updatedDoc.id);
@@ -263,9 +317,7 @@ export default function HomePage() {
             ? prev.savedDocs.map((d) => (d.id === updatedDoc.id ? updatedDoc : d))
             : [updatedDoc, ...prev.savedDocs];
 
-          const newFreeLeft = !prev.isSubscribed && prev.freeGenerationsLeft > 0
-            ? prev.freeGenerationsLeft - 1
-            : prev.freeGenerationsLeft;
+          const newFreeLeft = !prev.isSubscribed ? serverQuotaLeft : prev.freeGenerationsLeft;
 
           return {
             ...prev,
@@ -321,9 +373,23 @@ export default function HomePage() {
   };
 
   // Successful Subscription
-  const handleSuccessSubscribe = (transaction: PaymentTransaction) => {
+  const handleSuccessSubscribe = async (transaction: PaymentTransaction) => {
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 30);
+
+    // Server bazasiga yozish
+    if (user.phone) {
+      try {
+        await fetch('/api/user/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: user.phone, days: 30 }),
+        });
+      } catch (err) {
+        console.warn('Subscription server sync warning:', err);
+      }
+    }
+
     saveUserData((prev) => ({
       ...prev,
       isSubscribed: true,
@@ -333,7 +399,16 @@ export default function HomePage() {
   };
 
   // Reset Test Limit (For testing/debugging only)
-  const handleResetTestLimit = () => {
+  const handleResetTestLimit = async () => {
+    if (user.phone) {
+      try {
+        await fetch('/api/auth/send-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: user.phone })
+        });
+      } catch (e) {}
+    }
     saveUserData((prev) => ({
       ...prev,
       isSubscribed: false,
@@ -341,19 +416,20 @@ export default function HomePage() {
     }));
   };
 
-  // Log out (Chiqish) - preserves quota so logout cannot be abused to get free docs
+  // Log out (Chiqish)
   const handleLogout = () => {
     if (confirm("Haqiqatan ham hisobdan chiqmoqchimisiz?")) {
       saveUserData((prev) => {
         const guestUser: UserAccount = {
           id: `user-${Date.now()}`,
           email: '',
+          phone: undefined,
           fullName: '',
           role: 'student',
           university: "O'zbekiston Milliy Universiteti",
           isSubscribed: false,
-          freeGenerationsLeft: prev.freeGenerationsLeft, // preserve quota
-          totalGenerated: prev.totalGenerated,
+          freeGenerationsLeft: 1, // Will require entering phone number to claim real server quota!
+          totalGenerated: 0,
           savedDocs: prev.savedDocs || [],
         };
         return guestUser;
@@ -376,7 +452,7 @@ export default function HomePage() {
       {/* Top Navbar */}
       <Navbar
         user={user}
-        onOpenAuth={() => setIsAuthOpen(true)}
+        onOpenAuth={() => (user.phone ? setIsProfileOpen(true) : setIsAuthOpen(true))}
         onOpenSubscribe={() => setIsSubscribeOpen(true)}
         onOpenSettings={() => setIsSettingsOpen(true)}
         onLogout={handleLogout}
@@ -407,9 +483,11 @@ export default function HomePage() {
                 isLoading={isLoading}
                 defaultUniversity={user.university}
                 defaultAuthor={user.fullName}
+                userPhone={user.phone}
                 isSubscribed={user.isSubscribed}
                 freeGenerationsLeft={user.freeGenerationsLeft}
                 onOpenSubscribe={() => setIsSubscribeOpen(true)}
+                onOpenAuth={() => setIsAuthOpen(true)}
                 onResetTestLimit={handleResetTestLimit}
               />
             )}
@@ -495,9 +573,19 @@ export default function HomePage() {
         isExpiredLimit={!user.isSubscribed && user.freeGenerationsLeft <= 0}
       />
 
-      <AuthModal
+      <PhoneAuthModal
         isOpen={isAuthOpen}
         onClose={() => setIsAuthOpen(false)}
+        onSuccessLogin={(verifiedUser) => {
+          saveUserData((prev) => ({ ...prev, ...verifiedUser }));
+          setIsAuthOpen(false);
+        }}
+        currentPhone={user.phone}
+      />
+
+      <AuthModal
+        isOpen={isProfileOpen}
+        onClose={() => setIsProfileOpen(false)}
         currentUser={user}
         onSaveUser={(updated) => saveUserData((prev) => ({ ...prev, ...updated }))}
         onResetTestLimit={handleResetTestLimit}

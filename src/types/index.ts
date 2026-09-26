@@ -84,6 +84,7 @@ export interface PaymentTransaction {
 export interface UserAccount {
   id: string;
   email: string;
+  phone?: string;
   fullName: string;
   role: 'student' | 'teacher';
   university?: string;

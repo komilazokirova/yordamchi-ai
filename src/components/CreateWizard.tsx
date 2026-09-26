@@ -37,9 +37,11 @@ interface CreateWizardProps {
   isLoading: boolean;
   defaultUniversity?: string;
   defaultAuthor?: string;
+  userPhone?: string;
   isSubscribed: boolean;
   freeGenerationsLeft: number;
   onOpenSubscribe: () => void;
+  onOpenAuth?: () => void;
   onResetTestLimit?: () => void;
 }
 
@@ -48,9 +50,11 @@ export const CreateWizard: React.FC<CreateWizardProps> = ({
   isLoading,
   defaultUniversity = "O'zbekiston Milliy Universiteti",
   defaultAuthor = "Talaba",
+  userPhone,
   isSubscribed,
   freeGenerationsLeft,
   onOpenSubscribe,
+  onOpenAuth,
   onResetTestLimit,
 }) => {
   const [topic, setTopic] = useState('');
@@ -87,6 +91,11 @@ export const CreateWizard: React.FC<CreateWizardProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!topic.trim()) return;
+
+    if (!userPhone) {
+      onOpenAuth?.();
+      return;
+    }
 
     if (!isSubscribed && freeGenerationsLeft <= 0) {
       onOpenSubscribe();
@@ -272,10 +281,20 @@ export const CreateWizard: React.FC<CreateWizardProps> = ({
           </div>
 
           <div className="shrink-0 text-center sm:text-right">
-            <span className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500/30 ring-1 ring-emerald-400/50 px-4 py-2 text-xs font-black text-emerald-100 shadow-inner">
-              <span className="h-2 w-2 rounded-full bg-emerald-300 animate-ping" />
-              <span>1 ta bepul sinov faol</span>
-            </span>
+            {userPhone ? (
+              <span className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500/30 ring-1 ring-emerald-400/50 px-4 py-2 text-xs font-black text-emerald-100 shadow-inner">
+                <span className="h-2 w-2 rounded-full bg-emerald-300 animate-ping" />
+                <span>1 ta bepul sinov faol</span>
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={onOpenAuth}
+                className="inline-flex items-center gap-2 rounded-2xl bg-emerald-400 px-4 py-2.5 text-xs font-black text-slate-950 shadow-md hover:bg-emerald-300 active:scale-95 transition-all"
+              >
+                <span>Telefon orqali faollashtirish</span>
+              </button>
+            )}
           </div>
         </div>
       )}
