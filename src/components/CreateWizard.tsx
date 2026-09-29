@@ -38,9 +38,9 @@ interface CreateWizardProps {
   defaultUniversity?: string;
   defaultAuthor?: string;
   userPhone?: string;
-  isSubscribed: boolean;
-  freeGenerationsLeft: number;
-  onOpenSubscribe: () => void;
+  isSubscribed?: boolean;
+  freeGenerationsLeft?: number;
+  onOpenSubscribe?: () => void;
   onOpenAuth?: () => void;
   onResetTestLimit?: () => void;
 }
@@ -91,16 +91,6 @@ export const CreateWizard: React.FC<CreateWizardProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!topic.trim()) return;
-
-    if (!userPhone) {
-      onOpenAuth?.();
-      return;
-    }
-
-    if (!isSubscribed && freeGenerationsLeft <= 0) {
-      onOpenSubscribe();
-      return;
-    }
 
     onGenerateOutlines({
       topic: topic.trim(),
@@ -200,104 +190,32 @@ export const CreateWizard: React.FC<CreateWizardProps> = ({
         </p>
       </div>
 
-      {/* Status Banner: Free Trial, Paid Mode Alert, or Active Pro */}
-      {isSubscribed ? (
-        <div className="mb-6 overflow-hidden rounded-3xl bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-600 p-5 text-white shadow-xl shadow-emerald-500/20 ring-1 ring-white/20 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3.5 text-center sm:text-left">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-md shadow-inner">
-              <Crown className="h-6 w-6 text-amber-300" />
+      {/* 100% Free Platform Banner */}
+      <div className="mb-6 overflow-hidden rounded-3xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 p-5 text-white shadow-xl shadow-indigo-500/20 ring-1 ring-white/20 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex items-center gap-3.5 text-center sm:text-left">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-md shadow-inner">
+            <Sparkles className="h-6 w-6 text-amber-300" />
+          </div>
+          <div>
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-400/25 ring-1 ring-emerald-300/40 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-emerald-200 mb-1">
+              <span>🎁 100% MUTLAQO BEPUL VA CHEKSIZ</span>
             </div>
-            <div>
-              <div className="inline-flex items-center gap-1 rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-amber-200 mb-0.5">
-                <span>⭐ PRO OBUNA FAOL</span>
-              </div>
-              <h3 className="text-base font-bold">
-                Cheksiz generatsiya huquqiga egasiz!
-              </h3>
-              <p className="text-xs text-white/80">
-                Barcha turdagi ilmiy ishlar, Canva taqdimotlari va yuklab olishlar to'liq ochiq.
-              </p>
-            </div>
+            <h3 className="text-base font-bold">
+              Cheksiz Taqdimotlar, Kurs Ishlari va Referatlar!
+            </h3>
+            <p className="text-xs text-white/90">
+              O'zbekiston talabalari va o'qituvchilari uchun barcha imkoniyatlar mutlaqo bepul.
+            </p>
           </div>
         </div>
-      ) : freeGenerationsLeft <= 0 ? (
-        <div className="mb-6 overflow-hidden rounded-3xl bg-gradient-to-r from-rose-600 via-orange-600 to-amber-600 p-5 text-white shadow-xl shadow-orange-500/20 ring-1 ring-rose-400/40 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3.5 text-center sm:text-left">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-black/25 backdrop-blur-md shadow-inner">
-              <Lock className="h-6 w-6 text-amber-200" />
-            </div>
-            <div>
-              <div className="inline-flex items-center gap-1.5 rounded-full bg-black/35 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-amber-200 mb-1">
-                <span>🔒 PULLIK REJIMGA O'TDINGIZ</span>
-              </div>
-              <h3 className="text-base font-bold">
-                1 ta bepul sinov yakunlandi (1/1 ishlatildi)!
-              </h3>
-              <p className="text-xs text-white/90 max-w-lg">
-                Siz 1 ta hujjatingizni bepul sinab ko'rdingiz. Keyingi barcha taqdimotlar va ilmiy ishlarni cheksiz yaratish uchun oylik obunani (15 000 so'm) faollashtiring.
-              </p>
-            </div>
-          </div>
 
-          <div className="flex flex-col sm:flex-row items-center gap-2 shrink-0 w-full sm:w-auto">
-            <button
-              type="button"
-              onClick={onOpenSubscribe}
-              className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-2xl bg-amber-400 px-5 py-3 text-xs font-black text-slate-950 shadow-lg shadow-amber-950/20 hover:bg-amber-300 active:scale-95 transition-all"
-            >
-              <Crown className="h-4 w-4" />
-              <span>Obuna bo'lish: 15 000 so'm</span>
-            </button>
-
-            {onResetTestLimit && (
-              <button
-                type="button"
-                onClick={onResetTestLimit}
-                title="Test rejimida 1-bepul sinovni qayta yoqish"
-                className="w-full sm:w-auto rounded-2xl bg-white/20 hover:bg-white/30 px-3 py-2.5 text-[11px] font-bold text-white transition-all ring-1 ring-white/25"
-              >
-                🔄 Testni qaytarish
-              </button>
-            )}
-          </div>
+        <div className="shrink-0 text-center sm:text-right">
+          <span className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500/30 ring-1 ring-emerald-400/50 px-4 py-2 text-xs font-black text-emerald-100 shadow-inner">
+            <span className="h-2 w-2 rounded-full bg-emerald-300 animate-ping" />
+            <span>Cheksiz Bepul Rejim</span>
+          </span>
         </div>
-      ) : (
-        <div className="mb-6 overflow-hidden rounded-3xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 p-5 text-white shadow-xl shadow-indigo-500/20 ring-1 ring-white/20 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3.5 text-center sm:text-left">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-md shadow-inner">
-              <Sparkles className="h-6 w-6 text-amber-300" />
-            </div>
-            <div>
-              <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-400/25 ring-1 ring-emerald-300/40 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-emerald-200 mb-1">
-                <span>🎁 1-HUJJAT SIZ UCHUN 100% BEPUL</span>
-              </div>
-              <h3 className="text-base font-bold">
-                Platforma sifatini sinash uchun 1-taqdimot yoki referat BEPUL!
-              </h3>
-              <p className="text-xs text-white/90">
-                Canva dizaynlari, rasmlar va PowerPoint (.pptx) yuklab olishni bepul sinab ko'ring. Keyingi hujjatingizdan boshlab esa qulay pullik rejimga (15 000 so'm/oy) o'tadi.
-              </p>
-            </div>
-          </div>
-
-          <div className="shrink-0 text-center sm:text-right">
-            {userPhone ? (
-              <span className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500/30 ring-1 ring-emerald-400/50 px-4 py-2 text-xs font-black text-emerald-100 shadow-inner">
-                <span className="h-2 w-2 rounded-full bg-emerald-300 animate-ping" />
-                <span>1 ta bepul sinov faol</span>
-              </span>
-            ) : (
-              <button
-                type="button"
-                onClick={onOpenAuth}
-                className="inline-flex items-center gap-2 rounded-2xl bg-emerald-400 px-4 py-2.5 text-xs font-black text-slate-950 shadow-md hover:bg-emerald-300 active:scale-95 transition-all"
-              >
-                <span>Telefon orqali faollashtirish</span>
-              </button>
-            )}
-          </div>
-        </div>
-      )}
+      </div>
 
       {/* Main Creation Card */}
       <div className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-xl backdrop-blur-sm dark:border-slate-800 dark:bg-slate-900/95 sm:p-8">
@@ -547,40 +465,26 @@ export const CreateWizard: React.FC<CreateWizardProps> = ({
 
           {/* Submit / Proceed CTA Button */}
           <div className="pt-2">
-            {!isSubscribed && freeGenerationsLeft <= 0 ? (
-              <button
-                type="button"
-                onClick={onOpenSubscribe}
-                className="w-full flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-rose-600 py-4 text-base font-black text-white shadow-xl shadow-orange-500/25 transition-all hover:scale-[1.01] hover:shadow-orange-500/35 active:scale-[0.99]"
-              >
-                <Lock className="h-5 w-5 text-amber-200" />
-                <span>
-                  🔒 Pullik rejim: Davom etish uchun obuna bo'ling (15 000 so'm / oy)
-                </span>
-                <ArrowRight className="h-5 w-5 ml-1" />
-              </button>
-            ) : (
-              <button
-                type="submit"
-                disabled={isLoading || !topic.trim()}
-                className="w-full flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 py-4 text-base font-black text-white shadow-xl shadow-indigo-500/25 transition-all hover:scale-[1.01] hover:shadow-indigo-500/35 active:scale-[0.99] disabled:opacity-50"
-              >
-                {isLoading ? (
-                  <>
-                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                    <span>Sun'iy intellekt rejalarni tuzmoqda...</span>
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="h-5 w-5 text-amber-300" />
-                    <span>
-                      {targetCount} {docType === 'presentation' ? 'ta slaydli' : 'betlik'} rejalarni tuzish {!isSubscribed && freeGenerationsLeft > 0 ? '(1-bepul sinov)' : ''}
-                    </span>
-                    <ArrowRight className="h-5 w-5 ml-1" />
-                  </>
-                )}
-              </button>
-            )}
+            <button
+              type="submit"
+              disabled={isLoading || !topic.trim()}
+              className="w-full flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 py-4 text-base font-black text-white shadow-xl shadow-indigo-500/25 transition-all hover:scale-[1.01] hover:shadow-indigo-500/35 active:scale-[0.99] disabled:opacity-50"
+            >
+              {isLoading ? (
+                <>
+                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  <span>Sun'iy intellekt rejalarni tuzmoqda...</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-5 w-5 text-amber-300" />
+                  <span>
+                    {targetCount} {docType === 'presentation' ? 'ta slaydli' : 'betlik'} rejalarni tuzish
+                  </span>
+                  <ArrowRight className="h-5 w-5 ml-1" />
+                </>
+              )}
+            </button>
           </div>
 
         </form>

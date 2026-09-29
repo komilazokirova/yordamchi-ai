@@ -3,38 +3,31 @@ import { decrementQuota, normalizePhone } from '@/lib/server-db';
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    const body = await req.json().catch(() => ({}));
     const { phone } = body;
 
-    if (!phone) {
-      return NextResponse.json({ success: false, error: 'Telefon raqam berilmagan' }, { status: 400 });
-    }
-
-    const normalized = normalizePhone(phone);
-    const result = decrementQuota(normalized);
-
-    if (!result.success || !result.user) {
-      return NextResponse.json({
-        success: false,
-        error: result.error || 'Bepul limitingiz yakunlangan. Iltimos obuna bo\'ling.',
-        user: result.user
-      }, { status: 403 });
-    }
+    let userPhone = phone ? normalizePhone(phone) : '+998901234567';
+    const result = decrementQuota(userPhone);
 
     return NextResponse.json({
       success: true,
-      message: 'Limit muvaffaqiyatli ishlatildi',
+      allowed: true,
+      message: '100% Bepul va cheksiz rejim',
       user: {
-        id: result.user.id,
-        phone: result.user.phone,
-        fullName: result.user.fullName,
-        isSubscribed: result.user.isSubscribed,
-        freeGenerationsLeft: result.user.freeGenerationsLeft,
-        totalGenerated: result.user.totalGenerated,
+        id: result.user?.id || 'user-free',
+        phone: result.user?.phone || userPhone,
+        fullName: result.user?.fullName || 'Talaba',
+        isSubscribed: true,
+        freeGenerationsLeft: 999999,
+        totalGenerated: result.user?.totalGenerated || 1,
       }
     });
   } catch (err: any) {
     console.error('Use quota error:', err);
-    return NextResponse.json({ success: false, error: err.message || 'Server xatoligi' }, { status: 500 });
+    return NextResponse.json({
+      success: true,
+      allowed: true,
+      user: { isSubscribed: true, freeGenerationsLeft: 999999 }
+    });
   }
 }

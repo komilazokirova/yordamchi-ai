@@ -175,8 +175,7 @@ export function verifyOtp(phone: string, code: string): { success: boolean; user
   return { success: true, user };
 }
 
-// 4. Qat'iy bepul limitni 1 taga kamaytirish (Serverda saqlanadi!)
-// Foydalanuvchi inkognito ochsa ham, bu raqam uchun 0 qoladi!
+// 4. Generatsiya hisobi (Mutlaqo bepul va cheksiz)
 export function decrementQuota(phone: string): { success: boolean; user: UserRecord | null; error?: string } {
   const normalized = normalizePhone(phone);
   const db = readDatabase();
@@ -188,39 +187,22 @@ export function decrementQuota(phone: string): { success: boolean; user: UserRec
       phone: normalized,
       fullName: 'Talaba',
       university: "O'zbekiston Milliy Universiteti",
-      isSubscribed: false,
+      isSubscribed: true,
       subscriptionExpiresAt: null,
-      freeGenerationsLeft: 0,
+      freeGenerationsLeft: 999999,
       totalGenerated: 1,
       createdAt: new Date().toISOString(),
       lastActiveAt: new Date().toISOString(),
     };
-    db.users[normalized] = user;
-    writeDatabase(db);
-    return { success: true, user };
-  }
-
-  // Agar obunasi bo'lsa cheksiz
-  if (user.isSubscribed) {
+  } else {
+    user.isSubscribed = true;
+    user.freeGenerationsLeft = 999999;
     user.totalGenerated += 1;
     user.lastActiveAt = new Date().toISOString();
-    db.users[normalized] = user;
-    writeDatabase(db);
-    return { success: true, user };
   }
 
-  // Agar bepul limiti tugagan bo'lsa ruxsat bermaslik
-  if (user.freeGenerationsLeft <= 0) {
-    return { success: false, user, error: '1 ta bepul limitingiz tugagan. Obuna bo\'ling.' };
-  }
-
-  // 1 ta bepul limitni sarflash
-  user.freeGenerationsLeft = 0;
-  user.totalGenerated += 1;
-  user.lastActiveAt = new Date().toISOString();
   db.users[normalized] = user;
   writeDatabase(db);
-
   return { success: true, user };
 }
 

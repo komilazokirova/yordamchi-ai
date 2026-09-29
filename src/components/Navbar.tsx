@@ -7,7 +7,7 @@ import { UserAccount } from '@/types';
 interface NavbarProps {
   user: UserAccount;
   onOpenAuth: () => void;
-  onOpenSubscribe: () => void;
+  onOpenSubscribe?: () => void;
   onOpenSettings: () => void;
   onLogout?: () => void;
   currentTab: 'create' | 'my-docs';
@@ -18,7 +18,6 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({
   user,
   onOpenAuth,
-  onOpenSubscribe,
   onOpenSettings,
   onLogout,
   currentTab,
@@ -83,47 +82,11 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Right Actions */}
         <div className="flex items-center gap-2 sm:gap-3">
-          {/* Subscription Status or Upgrade */}
-          {user.isSubscribed ? (
-            <div className="flex items-center gap-1.5 rounded-xl bg-amber-500/10 px-3 py-1.5 text-xs font-bold text-amber-700 ring-1 ring-amber-500/30 dark:text-amber-300">
-              <Crown className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
-              <span className="hidden sm:inline">PRO Obuna Faol</span>
-            </div>
-          ) : user.freeGenerationsLeft <= 0 ? (
-            /* Paid Mode Alert */
-            <div className="flex items-center gap-2">
-              <span className="hidden lg:inline-flex items-center gap-1.5 rounded-xl bg-rose-50 px-2.5 py-1.5 text-[11px] font-bold text-rose-700 ring-1 ring-rose-200 dark:bg-rose-950/60 dark:text-rose-300 dark:ring-rose-900">
-                <Lock className="h-3 w-3" />
-                <span>Pullik rejim</span>
-              </span>
-              <button
-                onClick={onOpenSubscribe}
-                className="group relative flex items-center gap-1.5 overflow-hidden rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 px-3.5 py-2 text-xs font-extrabold text-white shadow-md shadow-orange-500/25 transition-all hover:scale-[1.02] active:scale-[0.98]"
-              >
-                <Crown className="h-3.5 w-3.5 text-amber-200" />
-                <span>15 000 so'm / oy</span>
-                <span className="hidden sm:inline-block rounded-md bg-white/20 px-1.5 py-0.5 text-[10px]">
-                  Obuna bo'lish
-                </span>
-              </button>
-            </div>
-          ) : (
-            /* Free Trial Active */
-            <div className="flex items-center gap-2">
-              <span className="hidden sm:inline-flex items-center gap-1.5 rounded-xl bg-emerald-50 px-2.5 py-1.5 text-[11px] font-bold text-emerald-700 ring-1 ring-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:ring-emerald-900">
-                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span>1 ta bepul sinov</span>
-              </span>
-              <button
-                onClick={onOpenSubscribe}
-                className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-3 py-2 text-xs font-bold text-white shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98]"
-              >
-                <Crown className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">15 000 so'm / oy</span>
-                <span className="sm:hidden">PRO</span>
-              </button>
-            </div>
-          )}
+          {/* 100% Free Badge */}
+          <div className="flex items-center gap-1.5 rounded-xl bg-emerald-500/10 px-3 py-1.5 text-xs font-bold text-emerald-700 ring-1 ring-emerald-500/30 dark:bg-emerald-950/40 dark:text-emerald-300">
+            <Sparkles className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+            <span>100% Mutlaqo Bepul</span>
+          </div>
 
           {/* API Settings */}
           <button

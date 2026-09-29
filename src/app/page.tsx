@@ -17,8 +17,6 @@ import { OutlineStep } from '@/components/OutlineStep';
 import { PresentationStudio } from '@/components/PresentationStudio';
 import { AcademicEditor } from '@/components/AcademicEditor';
 import { MyDocuments } from '@/components/MyDocuments';
-import { SubscriptionModal } from '@/components/SubscriptionModal';
-import { PhoneAuthModal } from '@/components/PhoneAuthModal';
 import { AuthModal } from '@/components/AuthModal';
 import { SettingsModal } from '@/components/SettingsModal';
 import { DEFAULT_THEME_ID } from '@/lib/slide-themes';
@@ -29,15 +27,15 @@ import {
 } from '@/lib/ai-service';
 
 export default function HomePage() {
-  // 1. User & Account State
+  // 1. User & Account State - 100% BEPUL & CHEKSIZ
   const [user, setUser] = useState<UserAccount>({
     id: 'user-default',
     email: 'talaba@edu.uz',
     fullName: 'Azizov Bekzod',
     role: 'student',
     university: "O'zbekiston Milliy Universiteti",
-    isSubscribed: false,
-    freeGenerationsLeft: 1, // 1st generation is FREE!
+    isSubscribed: true, // 100% Mutlaqo Bepul!
+    freeGenerationsLeft: 999999,
     totalGenerated: 0,
     savedDocs: [],
   });
@@ -61,8 +59,6 @@ export default function HomePage() {
 
   // 5. Modals State
   const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [isSubscribeOpen, setIsSubscribeOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   // Load state from localStorage on client mount
@@ -72,27 +68,9 @@ export default function HomePage() {
 
       if (storedUser) {
         const parsed = JSON.parse(storedUser);
+        parsed.isSubscribed = true;
+        parsed.freeGenerationsLeft = 999999;
         setUser(parsed);
-
-        // Server bazasi bilan darhol sinxronizatsiya qilish (Inkoginto yoki boshqa oynalardan kelganda ham to'g'ri ko'rinadi)
-        if (parsed.phone) {
-          fetch(`/api/user/sync?phone=${encodeURIComponent(parsed.phone)}`)
-            .then((r) => r.json())
-            .then((data) => {
-              if (data.success && data.user) {
-                setUser((prev) => {
-                  const synced = {
-                    ...prev,
-                    ...data.user,
-                    savedDocs: prev.savedDocs || [],
-                  };
-                  localStorage.setItem('yordamchi_ai_user', JSON.stringify(synced));
-                  return synced;
-                });
-              }
-            })
-            .catch((err) => console.warn('Server sync error:', err));
-        }
       }
 
       const storedSettings = localStorage.getItem('yordamchi_ai_settings') || localStorage.getItem('talaba_ai_settings');
@@ -148,18 +126,6 @@ export default function HomePage() {
     supervisorName: string;
     targetCount: number;
   }) => {
-    // Agar foydalanuvchi hali telefon raqami bilan kirmagan bo'lsa, ro'yxatdan o'tishni so'rash
-    if (!user.phone) {
-      setIsAuthOpen(true);
-      return;
-    }
-
-    // Check generation quota: Strict Paid Mode Gate
-    if (!user.isSubscribed && user.freeGenerationsLeft <= 0) {
-      setIsSubscribeOpen(true);
-      return;
-    }
-
     setIsLoading(true);
     try {
       const outlines = await generateOutlines(
@@ -200,21 +166,9 @@ export default function HomePage() {
     }
   };
 
-  // STEP 2 -> STEP 3: Generate Full Content or Slides
+  // STEP 2 -> STEP 3: Generate Full Content or Slides (100% BEPUL & CHEKSIZ)
   const handleProceedToContent = async () => {
     if (!currentDoc) return;
-
-    // Agar telefon raqami tasdiqlanmagan bo'lsa
-    if (!user.phone) {
-      setIsAuthOpen(true);
-      return;
-    }
-
-    // Strict quota check before generating slides/content
-    if (!user.isSubscribed && user.freeGenerationsLeft <= 0) {
-      setIsSubscribeOpen(true);
-      return;
-    }
 
     setIsLoading(true);
     try {
@@ -237,37 +191,18 @@ export default function HomePage() {
         setCurrentDoc(updatedDoc);
         setStep('studio');
 
-        // Serverdagi markazlashgan bazadan limitni 1 taga kamaytirish
-        let serverQuotaLeft = 0;
-        if (user.phone) {
-          try {
-            const qRes = await fetch('/api/user/use-quota', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ phone: user.phone }),
-            });
-            const qData = await qRes.json();
-            if (qData.success && qData.user) {
-              serverQuotaLeft = qData.user.freeGenerationsLeft;
-            }
-          } catch (e) {
-            console.warn('Server quota decrement error:', e);
-          }
-        }
-
-        // Atomically save to history, decrement free generations to 0, and increment totalGenerated!
+        // Hujjatni saqlash va hisoblagichni oshirish
         saveUserData((prev) => {
           const existingIndex = prev.savedDocs.findIndex((d) => d.id === updatedDoc.id);
           const updatedDocs = existingIndex >= 0
             ? prev.savedDocs.map((d) => (d.id === updatedDoc.id ? updatedDoc : d))
             : [updatedDoc, ...prev.savedDocs];
 
-          const newFreeLeft = !prev.isSubscribed ? serverQuotaLeft : prev.freeGenerationsLeft;
-
           return {
             ...prev,
             savedDocs: updatedDocs,
-            freeGenerationsLeft: newFreeLeft,
+            isSubscribed: true,
+            freeGenerationsLeft: 999999,
             totalGenerated: prev.totalGenerated + 1,
           };
         });
@@ -292,37 +227,18 @@ export default function HomePage() {
         setCurrentDoc(updatedDoc);
         setStep('academic-editor');
 
-        // Serverdagi markazlashgan bazadan limitni 1 taga kamaytirish
-        let serverQuotaLeft = 0;
-        if (user.phone) {
-          try {
-            const qRes = await fetch('/api/user/use-quota', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ phone: user.phone }),
-            });
-            const qData = await qRes.json();
-            if (qData.success && qData.user) {
-              serverQuotaLeft = qData.user.freeGenerationsLeft;
-            }
-          } catch (e) {
-            console.warn('Server quota decrement error:', e);
-          }
-        }
-
-        // Atomically save to history, decrement free generations to 0, and increment totalGenerated!
+        // Hujjatni saqlash va hisoblagichni oshirish
         saveUserData((prev) => {
           const existingIndex = prev.savedDocs.findIndex((d) => d.id === updatedDoc.id);
           const updatedDocs = existingIndex >= 0
             ? prev.savedDocs.map((d) => (d.id === updatedDoc.id ? updatedDoc : d))
             : [updatedDoc, ...prev.savedDocs];
 
-          const newFreeLeft = !prev.isSubscribed ? serverQuotaLeft : prev.freeGenerationsLeft;
-
           return {
             ...prev,
             savedDocs: updatedDocs,
-            freeGenerationsLeft: newFreeLeft,
+            isSubscribed: true,
+            freeGenerationsLeft: 999999,
             totalGenerated: prev.totalGenerated + 1,
           };
         });
@@ -419,21 +335,18 @@ export default function HomePage() {
   // Log out (Chiqish)
   const handleLogout = () => {
     if (confirm("Haqiqatan ham hisobdan chiqmoqchimisiz?")) {
-      saveUserData((prev) => {
-        const guestUser: UserAccount = {
-          id: `user-${Date.now()}`,
-          email: '',
-          phone: undefined,
-          fullName: '',
-          role: 'student',
-          university: "O'zbekiston Milliy Universiteti",
-          isSubscribed: false,
-          freeGenerationsLeft: 1, // Will require entering phone number to claim real server quota!
-          totalGenerated: 0,
-          savedDocs: prev.savedDocs || [],
-        };
-        return guestUser;
-      });
+      saveUserData((prev) => ({
+        id: `user-${Date.now()}`,
+        email: '',
+        phone: undefined,
+        fullName: '',
+        role: 'student',
+        university: "O'zbekiston Milliy Universiteti",
+        isSubscribed: true,
+        freeGenerationsLeft: 999999,
+        totalGenerated: 0,
+        savedDocs: prev.savedDocs || [],
+      }));
       setCurrentDoc(null);
       setStep('wizard');
       setCurrentTab('create');
@@ -452,10 +365,9 @@ export default function HomePage() {
       {/* Top Navbar */}
       <Navbar
         user={user}
-        onOpenAuth={() => (user.phone ? setIsProfileOpen(true) : setIsAuthOpen(true))}
-        onOpenSubscribe={() => setIsSubscribeOpen(true)}
+        onOpenAuth={() => setIsAuthOpen(true)}
         onOpenSettings={() => setIsSettingsOpen(true)}
-        onLogout={handleLogout}
+        onLogout={user.fullName ? handleLogout : undefined}
         currentTab={currentTab}
         onSelectTab={(tab) => {
           setCurrentTab(tab);
@@ -483,12 +395,7 @@ export default function HomePage() {
                 isLoading={isLoading}
                 defaultUniversity={user.university}
                 defaultAuthor={user.fullName}
-                userPhone={user.phone}
-                isSubscribed={user.isSubscribed}
-                freeGenerationsLeft={user.freeGenerationsLeft}
-                onOpenSubscribe={() => setIsSubscribeOpen(true)}
                 onOpenAuth={() => setIsAuthOpen(true)}
-                onResetTestLimit={handleResetTestLimit}
               />
             )}
 
@@ -566,29 +473,11 @@ export default function HomePage() {
       )}
 
       {/* Modals */}
-      <SubscriptionModal
-        isOpen={isSubscribeOpen}
-        onClose={() => setIsSubscribeOpen(false)}
-        onSuccessSubscribe={handleSuccessSubscribe}
-        isExpiredLimit={!user.isSubscribed && user.freeGenerationsLeft <= 0}
-      />
-
-      <PhoneAuthModal
+      <AuthModal
         isOpen={isAuthOpen}
         onClose={() => setIsAuthOpen(false)}
-        onSuccessLogin={(verifiedUser) => {
-          saveUserData((prev) => ({ ...prev, ...verifiedUser }));
-          setIsAuthOpen(false);
-        }}
-        currentPhone={user.phone}
-      />
-
-      <AuthModal
-        isOpen={isProfileOpen}
-        onClose={() => setIsProfileOpen(false)}
         currentUser={user}
         onSaveUser={(updated) => saveUserData((prev) => ({ ...prev, ...updated }))}
-        onResetTestLimit={handleResetTestLimit}
       />
 
       <SettingsModal
