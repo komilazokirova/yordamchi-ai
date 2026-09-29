@@ -62,6 +62,7 @@ export const PresentationStudio: React.FC<PresentationStudioProps> = ({
   const [customImageUrl, setCustomImageUrl] = useState('');
   const [showImageModal, setShowImageModal] = useState(false);
   const [selectedCategoryKey, setSelectedCategoryKey] = useState<string>('auto');
+  const [viewMode, setViewMode] = useState<'slide' | 'scroll'>('slide');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
@@ -107,6 +108,41 @@ export const PresentationStudio: React.FC<PresentationStudioProps> = ({
       idx === currentSlideIndex ? { ...s, [field]: value } : s
     );
     onUpdateSlides(updated);
+  };
+
+  const updateSlideByIndex = (slideIdx: number, field: keyof SlideData, value: any) => {
+    const updated = slides.map((s, idx) =>
+      idx === slideIdx ? { ...s, [field]: value } : s
+    );
+    onUpdateSlides(updated);
+  };
+
+  const handleInsertSlideAfter = (index: number) => {
+    const newSlide: SlideData = {
+      id: `slide-${Date.now()}`,
+      slideNumber: index + 2,
+      title: "Yangi Slayd Sarlavhasi",
+      subtitle: "Qisqacha ta'rif yoki tahliliy fikr",
+      bullets: [
+        "Birinchi asosiy fikr",
+        "Amaliy ahamiyat va ilmiy yondashuv",
+        "Kutilayotgan samaradorlik"
+      ],
+      layout: 'split',
+      themeId: selectedThemeId,
+      imageUrl: modalPhotos[0]?.url || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80',
+      imageCaption: "Mavzuga oid illyustratsiya"
+    };
+
+    const updated = [
+      ...slides.slice(0, index + 1),
+      newSlide,
+      ...slides.slice(index + 1)
+    ].map((s, idx) => ({ ...s, slideNumber: idx + 1 }));
+
+    onUpdateSlides(updated);
+    setCurrentSlideIndex(index + 1);
+    showToast("Yangi karta muvaffaqiyatli qo'shildi!");
   };
 
   // Add bullet or auto-overflow to next slide if current slide is full
@@ -366,30 +402,32 @@ export const PresentationStudio: React.FC<PresentationStudioProps> = ({
     : (ACADEMIC_CATEGORIES[selectedCategoryKey]?.photos || []);
 
   // Gamma 1-Click Layout Switcher
-  const handleSwitchLayout = (newLayout: SlideLayoutType) => {
-    let updatedSlide: SlideData = { ...currentSlide, layout: newLayout };
+  const handleSwitchLayout = (newLayout: SlideLayoutType, targetSlideIdx?: number) => {
+    const targetIdx = targetSlideIdx !== undefined ? targetSlideIdx : currentSlideIndex;
+    const target = slides[targetIdx] || currentSlide;
+    let updatedSlide: SlideData = { ...target, layout: newLayout };
 
     if (newLayout === 'stats' && (!updatedSlide.statsData || updatedSlide.statsData.length === 0)) {
       updatedSlide.statsData = [
-        { value: '+38%', label: currentSlide.bullets[0]?.slice(0, 32) || "Samaradorlik o'sishi", change: "Prognoz" },
-        { value: '2.5x', label: currentSlide.bullets[1]?.slice(0, 32) || "Jarayonlar tezlashuvi", change: "Raqamlashtirish" },
-        { value: '92%', label: currentSlide.bullets[2]?.slice(0, 32) || "Qamrov va natijadorlik", change: "O'zbekistonda" }
+        { value: '+38%', label: target.bullets[0]?.slice(0, 32) || "Samaradorlik o'sishi", change: "Prognoz" },
+        { value: '2.5x', label: target.bullets[1]?.slice(0, 32) || "Jarayonlar tezlashuvi", change: "Raqamlashtirish" },
+        { value: '92%', label: target.bullets[2]?.slice(0, 32) || "Qamrov va natijadorlik", change: "O'zbekistonda" }
       ];
     } else if (newLayout === 'columns' && (!updatedSlide.columnsData || updatedSlide.columnsData.length === 0)) {
       updatedSlide.columnsData = [
         {
-          title: currentSlide.bullets[0]?.split('—')[0]?.slice(0, 22) || "Nazariy Asoslar",
-          desc: currentSlide.bullets[0] || "Fundamental ilmiy tushunchalar va tamoyillar majmuasi",
+          title: target.bullets[0]?.split('—')[0]?.slice(0, 22) || "Nazariy Asoslar",
+          desc: target.bullets[0] || "Fundamental ilmiy tushunchalar va tamoyillar majmuasi",
           tag: "1-Yo'nalish"
         },
         {
-          title: currentSlide.bullets[1]?.split('—')[0]?.slice(0, 22) || "Amaliy Vositalar",
-          desc: currentSlide.bullets[1] || "Zamonaviy texnologiyalarni amaliyotga tatbiq etish mexanizmlari",
+          title: target.bullets[1]?.split('—')[0]?.slice(0, 22) || "Amaliy Vositalar",
+          desc: target.bullets[1] || "Zamonaviy texnologiyalarni amaliyotga tatbiq etish mexanizmlari",
           tag: "2-Yo'nalish"
         },
         {
-          title: currentSlide.bullets[2]?.split('—')[0]?.slice(0, 22) || "Monitoring & Natija",
-          desc: currentSlide.bullets[2] || "Kutilgan natijalarga erishish va doimiy monitoring choralari",
+          title: target.bullets[2]?.split('—')[0]?.slice(0, 22) || "Monitoring & Natija",
+          desc: target.bullets[2] || "Kutilgan natijalarga erishish va doimiy monitoring choralari",
           tag: "3-Yo'nalish"
         }
       ];
@@ -397,20 +435,20 @@ export const PresentationStudio: React.FC<PresentationStudioProps> = ({
       updatedSlide.timelineSteps = [
         {
           step: 1,
-          title: currentSlide.bullets[0]?.split('—')[0]?.slice(0, 25) || "1-Bosqich: Diagnostika",
-          desc: currentSlide.bullets[0] || "Mavjud holat va birlamchi ko'rsatkichlarni chuqur o'rganish",
+          title: target.bullets[0]?.split('—')[0]?.slice(0, 25) || "1-Bosqich: Diagnostika",
+          desc: target.bullets[0] || "Mavjud holat va birlamchi ko'rsatkichlarni chuqur o'rganish",
           dateOrPhase: "Boshlang'ich faza"
         },
         {
           step: 2,
-          title: currentSlide.bullets[1]?.split('—')[0]?.slice(0, 25) || "2-Bosqich: Implementatsiya",
-          desc: currentSlide.bullets[1] || "Asosiy mexanizmlar va raqamli vositalarni joriy etish",
+          title: target.bullets[1]?.split('—')[0]?.slice(0, 25) || "2-Bosqich: Implementatsiya",
+          desc: target.bullets[1] || "Asosiy mexanizmlar va raqamli vositalarni joriy etish",
           dateOrPhase: "Amaliy faza"
         },
         {
           step: 3,
-          title: currentSlide.bullets[2]?.split('—')[0]?.slice(0, 25) || "3-Bosqich: Baholash",
-          desc: currentSlide.bullets[2] || "Erishilgan samaradorlikni tahlil qilish va optimallashtirish",
+          title: target.bullets[2]?.split('—')[0]?.slice(0, 25) || "3-Bosqich: Baholash",
+          desc: target.bullets[2] || "Erishilgan samaradorlikni tahlil qilish va optimallashtirish",
           dateOrPhase: "Yakuniy faza"
         }
       ];
@@ -421,45 +459,82 @@ export const PresentationStudio: React.FC<PresentationStudioProps> = ({
       updatedSlide.quoteAuthor = authorName || "Soha Mutaxassisi";
     }
 
-    const updated = slides.map((s, idx) => (idx === currentSlideIndex ? updatedSlide : s));
+    const updated = slides.map((s, idx) => (idx === targetIdx ? updatedSlide : s));
     onUpdateSlides(updated);
     showToast(`Maket o'zgartirildi: ${newLayout.toUpperCase()}`);
   };
 
-  const handleUpdateStat = (sIndex: number, field: keyof StatItem, val: string) => {
-    const currentStats = currentSlide.statsData ? [...currentSlide.statsData] : [
+  const handleUpdateStatAt = (slideIdx: number, sIndex: number, field: keyof StatItem, val: string) => {
+    const target = slides[slideIdx] || currentSlide;
+    const currentStats = target.statsData ? [...target.statsData] : [
       { value: '+38%', label: "Samaradorlik", change: "Prognoz" },
       { value: '2.5x', label: "Tezlashuv", change: "Raqamli" },
       { value: '92%', label: "Qamrov", change: "O'zbekistonda" }
     ];
     if (currentStats[sIndex]) {
       currentStats[sIndex] = { ...currentStats[sIndex], [field]: val };
-      updateCurrentSlide('statsData', currentStats);
+      updateSlideByIndex(slideIdx, 'statsData', currentStats);
     }
   };
 
-  const handleUpdateColumn = (cIndex: number, field: keyof ColumnCardItem, val: string) => {
-    const currentCols = currentSlide.columnsData ? [...currentSlide.columnsData] : [
+  const handleUpdateColumnAt = (slideIdx: number, cIndex: number, field: keyof ColumnCardItem, val: string) => {
+    const target = slides[slideIdx] || currentSlide;
+    const currentCols = target.columnsData ? [...target.columnsData] : [
       { title: "Nazariya", desc: "Ta'rif", tag: "1-Yo'nalish" },
       { title: "Amaliyot", desc: "Ta'rif", tag: "2-Yo'nalish" },
       { title: "Natija", desc: "Ta'rif", tag: "3-Yo'nalish" }
     ];
     if (currentCols[cIndex]) {
       currentCols[cIndex] = { ...currentCols[cIndex], [field]: val };
-      updateCurrentSlide('columnsData', currentCols);
+      updateSlideByIndex(slideIdx, 'columnsData', currentCols);
     }
   };
 
-  const handleUpdateTimelineStep = (tIndex: number, field: keyof TimelineStepItem, val: any) => {
-    const currentSteps = currentSlide.timelineSteps ? [...currentSlide.timelineSteps] : [
+  const handleUpdateTimelineStepAt = (slideIdx: number, tIndex: number, field: keyof TimelineStepItem, val: any) => {
+    const target = slides[slideIdx] || currentSlide;
+    const currentSteps = target.timelineSteps ? [...target.timelineSteps] : [
       { step: 1, title: "1-Bosqich", desc: "Ta'rif", dateOrPhase: "1-Faza" },
       { step: 2, title: "2-Bosqich", desc: "Ta'rif", dateOrPhase: "2-Faza" },
       { step: 3, title: "3-Bosqich", desc: "Ta'rif", dateOrPhase: "3-Faza" }
     ];
     if (currentSteps[tIndex]) {
       currentSteps[tIndex] = { ...currentSteps[tIndex], [field]: val };
-      updateCurrentSlide('timelineSteps', currentSteps);
+      updateSlideByIndex(slideIdx, 'timelineSteps', currentSteps);
     }
+  };
+
+  const handleUpdateStat = (sIndex: number, field: keyof StatItem, val: string) => {
+    handleUpdateStatAt(currentSlideIndex, sIndex, field, val);
+  };
+
+  const handleUpdateColumn = (cIndex: number, field: keyof ColumnCardItem, val: string) => {
+    handleUpdateColumnAt(currentSlideIndex, cIndex, field, val);
+  };
+
+  const handleUpdateTimelineStep = (tIndex: number, field: keyof TimelineStepItem, val: any) => {
+    handleUpdateTimelineStepAt(currentSlideIndex, tIndex, field, val);
+  };
+
+  const handleUpdateBulletAt = (slideIdx: number, bIndex: number, text: string) => {
+    const target = slides[slideIdx];
+    if (!target) return;
+    const updatedBullets = [...target.bullets];
+    updatedBullets[bIndex] = text;
+    updateSlideByIndex(slideIdx, 'bullets', updatedBullets);
+  };
+
+  const handleAddBulletAt = (slideIdx: number) => {
+    const target = slides[slideIdx];
+    if (!target) return;
+    const updatedBullets = [...(target.bullets || []), "Yangi asosiy fikr yoki ma'lumot"];
+    updateSlideByIndex(slideIdx, 'bullets', updatedBullets);
+  };
+
+  const handleDeleteBulletAt = (slideIdx: number, bIndex: number) => {
+    const target = slides[slideIdx];
+    if (!target) return;
+    const updatedBullets = target.bullets.filter((_, i) => i !== bIndex);
+    updateSlideByIndex(slideIdx, 'bullets', updatedBullets);
   };
 
   return (
@@ -495,6 +570,36 @@ export const PresentationStudio: React.FC<PresentationStudioProps> = ({
               </button>
             )}
 
+            {/* Gamma View Mode Switcher: 16:9 Slayd vs Uzluksiz Lenta */}
+            <div className="hidden sm:flex items-center rounded-2xl bg-slate-900 p-1 border border-slate-800">
+              <button
+                type="button"
+                onClick={() => setViewMode('slide')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                  viewMode === 'slide'
+                    ? 'bg-blue-600 text-white shadow-md shadow-blue-500/30'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+                title="Alohida 16:9 slaydlar rejimi"
+              >
+                <Layout className="h-3.5 w-3.5" />
+                <span>Slayd</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode('scroll')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                  viewMode === 'scroll'
+                    ? 'bg-blue-600 text-white shadow-md shadow-blue-500/30'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+                title="Gamma uslubidagi uzluksiz kartalar lentasi"
+              >
+                <Layers className="h-3.5 w-3.5 text-amber-400" />
+                <span>Lenta (Gamma)</span>
+              </button>
+            </div>
+
             <button
               onClick={() => setIsFullscreen(true)}
               className="flex items-center gap-1.5 rounded-2xl border border-slate-700 bg-slate-800/90 px-3.5 py-2 text-xs font-bold text-slate-200 hover:bg-slate-700 transition-all hover:scale-105 active:scale-95"
@@ -528,7 +633,7 @@ export const PresentationStudio: React.FC<PresentationStudioProps> = ({
       <div className="flex flex-1 overflow-hidden">
         
         {/* LEFT: SLIDE THUMBNAILS (Canva style) */}
-        {!isFullscreen && (
+        {!isFullscreen && viewMode === 'slide' && (
           <aside className="w-56 border-r border-slate-800 bg-slate-950/80 flex flex-col">
             <div className="flex items-center justify-between p-3 border-b border-slate-800">
               <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
@@ -584,8 +689,514 @@ export const PresentationStudio: React.FC<PresentationStudioProps> = ({
           </aside>
         )}
 
-        {/* CENTER: PRESENTATION CANVAS */}
-        <main className="flex-1 flex flex-col items-center justify-center p-4 sm:p-8 bg-slate-900/90 overflow-auto">
+        {/* CENTER: PRESENTATION CANVAS OR CONTINUOUS CARDS FEED */}
+        {viewMode === 'scroll' ? (
+          <main className="flex-1 overflow-y-auto p-4 sm:p-8 bg-slate-900/90 scroll-smooth">
+            <div className="max-w-4xl mx-auto space-y-6 pb-20">
+              
+              {/* Gamma Feed Header Banner */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl bg-gradient-to-r from-blue-950/60 via-slate-950/80 to-purple-950/60 p-4 border border-blue-500/20 backdrop-blur-md shadow-xl">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-500/20 text-blue-400 border border-blue-500/30">
+                    <Sparkles className="h-5 w-5 text-amber-400" />
+                  </div>
+                  <div>
+                    <h2 className="text-sm sm:text-base font-extrabold text-white flex items-center gap-2">
+                      <span>Gamma Uzluksiz Lenta Rejimi</span>
+                      <span className="rounded-full bg-blue-500/20 text-blue-300 text-[10px] font-bold px-2 py-0.5 border border-blue-500/30">
+                        {slides.length} ta modul
+                      </span>
+                    </h2>
+                    <p className="text-xs text-slate-400">
+                      Barcha kartalarni bitta sahifada ko'ring, to'g'ridan-to'g'ri tahrirlang va istalgan joyiga yangi karta qo'shing.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    onClick={handleAddNewSlide}
+                    className="flex items-center gap-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 px-3 py-1.5 text-xs font-bold text-white shadow-md shadow-blue-500/25 transition-all active:scale-95"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                    <span>Oxiriga karta qo'shish</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Cards List */}
+              {slides.map((slide, sIdx) => (
+                <div key={slide.id || sIdx} className="space-y-4">
+                  {/* The Card Box */}
+                  <div
+                    onClick={() => setCurrentSlideIndex(sIdx)}
+                    className={`group relative rounded-3xl ${currentTheme.bgGradient} p-6 sm:p-8 shadow-2xl border transition-all ${
+                      sIdx === currentSlideIndex
+                        ? 'border-blue-500/80 ring-2 ring-blue-500/30 shadow-blue-500/10'
+                        : 'border-white/15 hover:border-white/30'
+                    }`}
+                  >
+                    {/* Card Top Action Bar */}
+                    <div className="flex flex-wrap items-center justify-between gap-2 pb-4 mb-4 border-b border-white/15">
+                      <div className="flex items-center gap-2">
+                        <span className={`flex items-center gap-1.5 rounded-xl bg-white/10 backdrop-blur-md px-3 py-1 text-xs font-black uppercase tracking-wider ${currentTheme.accentColor} border border-white/15`}>
+                          <span>Karta #{sIdx + 1}</span>
+                        </span>
+                        <span className={`text-xs font-semibold ${currentTheme.subtitleColor} hidden sm:inline`}>
+                          {slide.layout.toUpperCase()}
+                        </span>
+                      </div>
+
+                      {/* Inline Layout Switcher for this Card */}
+                      <div className="flex items-center gap-1 bg-black/30 backdrop-blur-md rounded-2xl p-1 border border-white/10 overflow-x-auto scrollbar-none">
+                        {[
+                          { id: 'split' as SlideLayoutType, label: 'Split', icon: Split },
+                          { id: 'stats' as SlideLayoutType, label: 'Stats', icon: BarChart3 },
+                          { id: 'columns' as SlideLayoutType, label: '3 Ustun', icon: Columns3 },
+                          { id: 'timeline' as SlideLayoutType, label: 'Timeline', icon: Clock },
+                          { id: 'bullets' as SlideLayoutType, label: 'Tezis', icon: ListOrdered },
+                          { id: 'quote' as SlideLayoutType, label: 'Iqtibos', icon: Quote },
+                          { id: 'title' as SlideLayoutType, label: 'Titul', icon: Layers },
+                        ].map((l) => {
+                          const Icon = l.icon;
+                          const isActive = slide.layout === l.id;
+                          return (
+                            <button
+                              key={l.id}
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleSwitchLayout(l.id, sIdx);
+                              }}
+                              title={l.label}
+                              className={`flex items-center gap-1 px-2.5 py-1 rounded-xl text-[11px] font-bold transition-all ${
+                                isActive
+                                  ? 'bg-blue-600 text-white shadow-md'
+                                  : 'text-white/60 hover:text-white hover:bg-white/10'
+                              }`}
+                            >
+                              <Icon className="h-3 w-3" />
+                              <span className="hidden md:inline">{l.label}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* Delete Slide Button */}
+                      {slides.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteSlide(sIdx);
+                          }}
+                          className="p-1.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 border border-red-500/20 transition-colors"
+                          title="Kartani o'chirish"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Card Content based on layout */}
+                    {slide.layout === 'title' ? (
+                      // TITLE CARD
+                      <div className="space-y-4 text-center py-6">
+                        <input
+                          type="text"
+                          value={slide.title}
+                          onChange={(e) => updateSlideByIndex(sIdx, 'title', e.target.value)}
+                          className={`w-full bg-transparent text-center text-2xl sm:text-4xl font-extrabold tracking-tight focus:outline-none focus:ring-1 focus:ring-white/30 rounded px-2 ${currentTheme.textColor}`}
+                          placeholder="Taqdimot Sarlavhasi"
+                        />
+                        <input
+                          type="text"
+                          value={slide.subtitle || ''}
+                          onChange={(e) => updateSlideByIndex(sIdx, 'subtitle', e.target.value)}
+                          className={`w-full bg-transparent text-center text-sm sm:text-lg focus:outline-none focus:ring-1 focus:ring-white/30 rounded px-2 ${currentTheme.subtitleColor}`}
+                          placeholder="Kichik sarlavha yoki ma'ruzachi"
+                        />
+                        <div className="mt-4 inline-block rounded-2xl bg-black/20 backdrop-blur-md px-6 py-2.5 border border-white/10 text-xs">
+                          <p className={currentTheme.accentColor}>Tayyorladi: {authorName || "Talaba"}</p>
+                          <p className="opacity-70 mt-0.5">{institution || "O'zbekiston Milliy Universiteti"} – 2026</p>
+                        </div>
+                      </div>
+                    ) : slide.layout === 'stats' ? (
+                      // STATS / KPI CARD
+                      <div className="space-y-4">
+                        <div>
+                          <input
+                            type="text"
+                            value={slide.title}
+                            onChange={(e) => updateSlideByIndex(sIdx, 'title', e.target.value)}
+                            className={`w-full bg-transparent text-xl sm:text-2xl font-extrabold tracking-tight focus:outline-none focus:ring-1 focus:ring-white/30 rounded px-1 ${currentTheme.textColor}`}
+                            placeholder="Slayd sarlavhasi"
+                          />
+                          <input
+                            type="text"
+                            value={slide.subtitle || ''}
+                            onChange={(e) => updateSlideByIndex(sIdx, 'subtitle', e.target.value)}
+                            className={`w-full bg-transparent text-xs sm:text-sm mt-1 focus:outline-none focus:ring-1 focus:ring-white/30 rounded px-1 ${currentTheme.subtitleColor}`}
+                            placeholder="Statistik tahlil va asosiy raqamlar"
+                          />
+                        </div>
+
+                        <div className="rounded-xl bg-white/10 backdrop-blur-md px-3.5 py-2 border border-white/15 flex items-center gap-2">
+                          <span className="text-amber-300 text-xs shrink-0 font-bold">💡 Asosiy xulosa:</span>
+                          <input
+                            type="text"
+                            value={slide.bullets[0] || "Sohada erishilgan asosiy ko'rsatkichlar va tahliliy natijalar"}
+                            onChange={(e) => handleUpdateBulletAt(sIdx, 0, e.target.value)}
+                            className={`flex-1 bg-transparent text-xs sm:text-sm font-semibold focus:outline-none ${currentTheme.textColor}`}
+                            placeholder="Asosiy fikr yoki xulosani yozing..."
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                          {(slide.statsData && slide.statsData.length > 0
+                            ? slide.statsData
+                            : [
+                                { value: '+38%', label: "Samaradorlik o'sishi", change: "Prognoz" },
+                                { value: '2.5x', label: "Jarayonlar tezlashuvi", change: "Raqamli" },
+                                { value: '92%', label: "Qamrov va natijadorlik", change: "O'zbekistonda" }
+                              ]
+                          ).slice(0, 3).map((st, statIdx) => (
+                            <div
+                              key={statIdx}
+                              className={`rounded-2xl p-4 flex flex-col justify-between items-center text-center shadow-xl ${currentTheme.cardBg} border border-white/20`}
+                            >
+                              {st.change && (
+                                <input
+                                  type="text"
+                                  value={st.change}
+                                  onChange={(e) => handleUpdateStatAt(sIdx, statIdx, 'change', e.target.value)}
+                                  className="mb-1 text-[10px] font-black uppercase tracking-wider text-center bg-white/10 px-2.5 py-0.5 rounded-full border border-white/20 focus:outline-none text-white/90"
+                                />
+                              )}
+                              <input
+                                type="text"
+                                value={st.value}
+                                onChange={(e) => handleUpdateStatAt(sIdx, statIdx, 'value', e.target.value)}
+                                className={`w-full text-center text-3xl sm:text-4xl font-black bg-transparent tracking-tight focus:outline-none my-1 ${currentTheme.accentColor}`}
+                              />
+                              <div className="w-8 h-0.5 bg-white/20 my-1 rounded-full" />
+                              <textarea
+                                rows={2}
+                                value={st.label}
+                                onChange={(e) => handleUpdateStatAt(sIdx, statIdx, 'label', e.target.value)}
+                                className={`w-full text-center text-xs font-semibold bg-transparent resize-none focus:outline-none leading-snug ${currentTheme.textColor}`}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : slide.layout === 'columns' ? (
+                      // 3 COLUMNS CARD
+                      <div className="space-y-4">
+                        <div>
+                          <input
+                            type="text"
+                            value={slide.title}
+                            onChange={(e) => updateSlideByIndex(sIdx, 'title', e.target.value)}
+                            className={`w-full bg-transparent text-xl sm:text-2xl font-extrabold tracking-tight focus:outline-none focus:ring-1 focus:ring-white/30 rounded px-1 ${currentTheme.textColor}`}
+                            placeholder="Slayd sarlavhasi"
+                          />
+                          <input
+                            type="text"
+                            value={slide.subtitle || ''}
+                            onChange={(e) => updateSlideByIndex(sIdx, 'subtitle', e.target.value)}
+                            className={`w-full bg-transparent text-xs sm:text-sm mt-1 focus:outline-none focus:ring-1 focus:ring-white/30 rounded px-1 ${currentTheme.subtitleColor}`}
+                            placeholder="Tizimli tasnif va asosiy yo'nalishlar"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                          {(slide.columnsData && slide.columnsData.length > 0
+                            ? slide.columnsData
+                            : [
+                                { title: "Nazariy Asoslar", desc: "Fundamental tamoyillar va ilmiy qarashlar tahlili", tag: "1-Yo'nalish" },
+                                { title: "Amaliy Tatbiq", desc: "Sohaga raqamli texnologiyalarni tatbiq etish mexanizmlari", tag: "2-Yo'nalish" },
+                                { title: "Kutilgan Natija", desc: "Samaradorlikni oshirish va barqaror rivojlanish", tag: "3-Yo'nalish" }
+                              ]
+                          ).slice(0, 3).map((col, colIdx) => (
+                            <div
+                              key={colIdx}
+                              className={`rounded-2xl p-4 flex flex-col justify-between shadow-xl ${currentTheme.cardBg} border border-white/20`}
+                            >
+                              <div>
+                                <input
+                                  type="text"
+                                  value={col.tag || `${colIdx + 1}-Yo'nalish`}
+                                  onChange={(e) => handleUpdateColumnAt(sIdx, colIdx, 'tag', e.target.value)}
+                                  className={`text-[10px] font-black uppercase tracking-wider bg-white/10 px-2 py-0.5 rounded-lg border border-white/15 focus:outline-none ${currentTheme.accentColor}`}
+                                />
+                                <input
+                                  type="text"
+                                  value={col.title}
+                                  onChange={(e) => handleUpdateColumnAt(sIdx, colIdx, 'title', e.target.value)}
+                                  className={`w-full mt-2 text-sm sm:text-base font-extrabold bg-transparent focus:outline-none leading-tight ${currentTheme.textColor}`}
+                                />
+                                <div className="w-6 h-0.5 bg-white/20 my-2 rounded-full" />
+                              </div>
+                              <textarea
+                                rows={3}
+                                value={col.desc}
+                                onChange={(e) => handleUpdateColumnAt(sIdx, colIdx, 'desc', e.target.value)}
+                                className={`w-full text-xs bg-transparent resize-none focus:outline-none leading-relaxed opacity-90 ${currentTheme.textColor}`}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : slide.layout === 'timeline' ? (
+                      // TIMELINE / STEPS CARD
+                      <div className="space-y-4">
+                        <div>
+                          <input
+                            type="text"
+                            value={slide.title}
+                            onChange={(e) => updateSlideByIndex(sIdx, 'title', e.target.value)}
+                            className={`w-full bg-transparent text-xl sm:text-2xl font-extrabold tracking-tight focus:outline-none focus:ring-1 focus:ring-white/30 rounded px-1 ${currentTheme.textColor}`}
+                            placeholder="Slayd sarlavhasi"
+                          />
+                          <input
+                            type="text"
+                            value={slide.subtitle || ''}
+                            onChange={(e) => updateSlideByIndex(sIdx, 'subtitle', e.target.value)}
+                            className={`w-full bg-transparent text-xs sm:text-sm mt-1 focus:outline-none focus:ring-1 focus:ring-white/30 rounded px-1 ${currentTheme.subtitleColor}`}
+                            placeholder="Bosqichma-bosqich jarayon va rejalar"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                          {(slide.timelineSteps && slide.timelineSteps.length > 0
+                            ? slide.timelineSteps
+                            : [
+                                { step: 1, title: "1-Bosqich: Diagnostika", desc: "Mavjud ko'rsatkichlar va muammolarni chuqur o'rganish", dateOrPhase: "1-Faza" },
+                                { step: 2, title: "2-Bosqich: Implementatsiya", desc: "Amaliy vositalar va raqamli mexanizmlarni joriy etish", dateOrPhase: "2-Faza" },
+                                { step: 3, title: "3-Bosqich: Baholash", desc: "Erishilgan natijalar va samaradorlikni tahlil qilish", dateOrPhase: "3-Faza" }
+                              ]
+                          ).slice(0, 3).map((st, stepIdx) => (
+                            <div
+                              key={stepIdx}
+                              className={`rounded-2xl p-4 flex flex-col justify-between shadow-xl ${currentTheme.cardBg} border border-white/20`}
+                            >
+                              <div>
+                                <div className="flex items-center justify-between gap-1 mb-2">
+                                  <span className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-black ring-1 ring-white/30 bg-white/10 ${currentTheme.accentColor}`}>
+                                    {st.step || stepIdx + 1}
+                                  </span>
+                                  <input
+                                    type="text"
+                                    value={st.dateOrPhase || `${stepIdx + 1}-Faza`}
+                                    onChange={(e) => handleUpdateTimelineStepAt(sIdx, stepIdx, 'dateOrPhase', e.target.value)}
+                                    className="text-[10px] font-bold uppercase tracking-wider text-right bg-transparent focus:outline-none opacity-80"
+                                  />
+                                </div>
+                                <input
+                                  type="text"
+                                  value={st.title}
+                                  onChange={(e) => handleUpdateTimelineStepAt(sIdx, stepIdx, 'title', e.target.value)}
+                                  className={`w-full text-sm sm:text-base font-extrabold bg-transparent focus:outline-none leading-tight ${currentTheme.textColor}`}
+                                />
+                                <div className="w-6 h-0.5 bg-white/20 my-2 rounded-full" />
+                              </div>
+                              <textarea
+                                rows={3}
+                                value={st.desc}
+                                onChange={(e) => handleUpdateTimelineStepAt(sIdx, stepIdx, 'desc', e.target.value)}
+                                className={`w-full text-xs bg-transparent resize-none focus:outline-none leading-relaxed opacity-90 ${currentTheme.textColor}`}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : slide.layout === 'quote' ? (
+                      // QUOTE CARD
+                      <div className="space-y-4">
+                        <div>
+                          <input
+                            type="text"
+                            value={slide.title}
+                            onChange={(e) => updateSlideByIndex(sIdx, 'title', e.target.value)}
+                            className={`w-full bg-transparent text-xl sm:text-2xl font-extrabold tracking-tight focus:outline-none focus:ring-1 focus:ring-white/30 rounded px-1 ${currentTheme.textColor}`}
+                            placeholder="Slayd sarlavhasi"
+                          />
+                          <input
+                            type="text"
+                            value={slide.subtitle || ''}
+                            onChange={(e) => updateSlideByIndex(sIdx, 'subtitle', e.target.value)}
+                            className={`w-full bg-transparent text-xs sm:text-sm mt-1 focus:outline-none focus:ring-1 focus:ring-white/30 rounded px-1 ${currentTheme.subtitleColor}`}
+                            placeholder="Mavzuga oid muhim iqtibos yoki konseptual g'oya"
+                          />
+                        </div>
+
+                        <div className="flex flex-col items-center justify-center text-center p-8 rounded-3xl bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl relative max-w-2xl mx-auto w-full">
+                          <span className={`text-5xl font-serif font-black leading-none opacity-80 mb-2 ${currentTheme.accentColor}`}>“</span>
+                          <textarea
+                            rows={3}
+                            value={slide.bullets[0] || slide.subtitle || slide.title}
+                            onChange={(e) => handleUpdateBulletAt(sIdx, 0, e.target.value)}
+                            className={`w-full text-center text-base sm:text-xl font-serif italic bg-transparent resize-none focus:outline-none leading-relaxed ${currentTheme.textColor}`}
+                            placeholder="Iqtibos matnini kiriting..."
+                          />
+                          <div className="w-12 h-0.5 bg-white/20 my-3 rounded-full" />
+                          <input
+                            type="text"
+                            value={slide.quoteAuthor || authorName || "Soha Mutaxassisi"}
+                            onChange={(e) => updateSlideByIndex(sIdx, 'quoteAuthor', e.target.value)}
+                            className={`text-center text-xs font-bold bg-transparent focus:outline-none ${currentTheme.accentColor}`}
+                            placeholder="Muallif yoki manba"
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      // BODY / SPLIT / BULLETS CARD
+                      <div className="space-y-4">
+                        <div>
+                          <input
+                            type="text"
+                            value={slide.title}
+                            onChange={(e) => updateSlideByIndex(sIdx, 'title', e.target.value)}
+                            className={`w-full bg-transparent text-xl sm:text-2xl font-extrabold tracking-tight focus:outline-none focus:ring-1 focus:ring-white/30 rounded px-1 ${currentTheme.textColor}`}
+                            placeholder="Slayd sarlavhasi"
+                          />
+                          <input
+                            type="text"
+                            value={slide.subtitle || ''}
+                            onChange={(e) => updateSlideByIndex(sIdx, 'subtitle', e.target.value)}
+                            className={`w-full bg-transparent text-xs sm:text-sm mt-1 focus:outline-none focus:ring-1 focus:ring-white/30 rounded px-1 ${currentTheme.subtitleColor}`}
+                            placeholder="Qisqacha tavsif yoki izoh"
+                          />
+                        </div>
+
+                        <div className={`grid gap-4 items-start ${slide.imageUrl ? 'grid-cols-1 md:grid-cols-12' : 'grid-cols-1'}`}>
+                          {/* Bullets List */}
+                          <div className={`${slide.imageUrl ? 'md:col-span-7' : ''} space-y-2.5`}>
+                            {slide.bullets.map((bullet, bIdx) => (
+                              <div
+                                key={bIdx}
+                                className={`group/b flex items-start gap-2.5 rounded-2xl p-2.5 transition-all ${currentTheme.cardBg} border border-white/10`}
+                              >
+                                <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-lg text-xs font-bold ${currentTheme.accentColor} bg-white/10`}>
+                                  •
+                                </span>
+                                <textarea
+                                  rows={2}
+                                  value={bullet}
+                                  onChange={(e) => handleUpdateBulletAt(sIdx, bIdx, e.target.value)}
+                                  className={`flex-1 resize-none bg-transparent leading-relaxed focus:outline-none text-xs sm:text-sm ${currentTheme.textColor}`}
+                                />
+                                {slide.bullets.length > 1 && (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDeleteBulletAt(sIdx, bIdx)}
+                                    className="opacity-40 group-hover/b:opacity-100 text-red-400 hover:text-red-300 p-1 rounded"
+                                    title="Fikrni o'chirish"
+                                  >
+                                    <Trash2 className="h-3 w-3" />
+                                  </button>
+                                )}
+                              </div>
+                            ))}
+
+                            <button
+                              type="button"
+                              onClick={() => handleAddBulletAt(sIdx)}
+                              className="flex items-center gap-1.5 text-xs font-semibold text-white/80 hover:text-white bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-xl transition-all"
+                            >
+                              <Plus className="h-3.5 w-3.5" />
+                              <span>Fikr qo'shish</span>
+                            </button>
+                          </div>
+
+                          {/* Image side */}
+                          {slide.imageUrl && (
+                            <div className="md:col-span-5 relative h-64 rounded-2xl overflow-hidden border border-white/20 shadow-xl group/img">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={slide.imageUrl}
+                                alt={slide.title}
+                                className="h-full w-full object-cover transition-transform duration-500 group-hover/img:scale-105"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex items-end p-3">
+                                <span className="text-[11px] text-white/90 line-clamp-1">
+                                  {slide.imageCaption || "Mavzuga oid illyustratsiya"}
+                                </span>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setCurrentSlideIndex(sIdx);
+                                  setShowImageModal(true);
+                                }}
+                                className="absolute top-2 right-2 rounded-xl bg-black/70 backdrop-blur-md px-2.5 py-1.5 text-xs text-white opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center gap-1.5 hover:bg-black/90 shadow-md"
+                              >
+                                <ImageIcon className="h-3.5 w-3.5 text-blue-400" />
+                                <span>O'zgartirish</span>
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Card Footer */}
+                    <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs opacity-70">
+                      <span>{institution || "Yordamchi AI"}</span>
+                      <span>{topic.slice(0, 35)}</span>
+                    </div>
+
+                  </div>
+
+                  {/* Add Card Divider between cards */}
+                  <div className="relative flex items-center justify-center py-2 group/add">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-slate-800 group-hover/add:border-blue-500/40 transition-colors" />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleInsertSlideAfter(sIdx)}
+                      className="relative flex items-center gap-1.5 rounded-full bg-slate-900 hover:bg-blue-600 px-3.5 py-1 text-xs font-bold text-slate-400 hover:text-white border border-slate-700 hover:border-blue-400 transition-all shadow-md group-hover/add:scale-105 active:scale-95"
+                    >
+                      <Plus className="h-3.5 w-3.5" />
+                      <span>Shu yerga yangi karta qo'shish</span>
+                    </button>
+                  </div>
+
+                </div>
+              ))}
+
+              {/* Bottom Actions Bar */}
+              <div className="flex flex-wrap items-center justify-center gap-3 pt-6 pb-12">
+                <button
+                  onClick={handleAddNewSlide}
+                  className="flex items-center gap-2 rounded-2xl bg-blue-600 hover:bg-blue-500 px-5 py-3 text-sm font-bold text-white shadow-xl shadow-blue-500/30 transition-all hover:scale-105 active:scale-95"
+                >
+                  <Plus className="h-4 w-4" />
+                  <span>+ Yangi karta qo'shish</span>
+                </button>
+                <button
+                  onClick={() => setViewMode('slide')}
+                  className="flex items-center gap-2 rounded-2xl bg-slate-800 hover:bg-slate-700 px-5 py-3 text-sm font-bold text-slate-200 transition-all hover:scale-105 active:scale-95 border border-slate-700"
+                >
+                  <Layout className="h-4 w-4 text-blue-400" />
+                  <span>Slayd rejimiga o'tish (16:9)</span>
+                </button>
+                <button
+                  onClick={handleDownloadPptx}
+                  disabled={isExporting}
+                  className="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 px-5 py-3 text-sm font-black text-white shadow-xl shadow-orange-500/30 ring-1 ring-amber-300/40 transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
+                >
+                  <Download className="h-4 w-4" />
+                  <span>PowerPoint (.pptx) yuklab olish</span>
+                </button>
+              </div>
+
+            </div>
+          </main>
+        ) : (
+          <main className="flex-1 flex flex-col items-center justify-center p-4 sm:p-8 bg-slate-900/90 overflow-auto">
           
           {/* Gamma 1-Click Layout Switcher Toolbar (Above slide) */}
           {!isFullscreen && (
@@ -1157,6 +1768,7 @@ export const PresentationStudio: React.FC<PresentationStudioProps> = ({
           )}
 
         </main>
+      )}
 
         {/* RIGHT: THEMES & DESIGN TOOLS (Canva Style) */}
         {!isFullscreen && (

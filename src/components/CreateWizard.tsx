@@ -149,394 +149,206 @@ export const CreateWizard: React.FC<CreateWizardProps> = ({
   const textDocCountPresets = [5, 8, 10, 15, 20];
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
+    <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6">
       
-      {/* Visual Step Progress Indicator */}
-      <div className="mb-8 flex items-center justify-center">
-        <div className="inline-flex items-center gap-2 sm:gap-3 rounded-full bg-slate-100/80 p-1.5 ring-1 ring-slate-200/80 dark:bg-slate-900/80 dark:ring-slate-800">
-          <div className="flex items-center gap-2 rounded-full bg-blue-600 px-3.5 py-1 text-xs font-bold text-white shadow-sm">
-            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-white text-[10px] font-black text-blue-600">
-              1
-            </span>
-            <span>Mavzu va Parametrlar</span>
-          </div>
-          <div className="h-0.5 w-4 bg-slate-300 dark:bg-slate-700" />
-          <div className="flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-slate-500 dark:text-slate-400">
-            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-slate-200 text-[10px] font-bold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
-              2
-            </span>
-            <span>Rejalar</span>
-          </div>
-          <div className="h-0.5 w-4 bg-slate-300 dark:bg-slate-700" />
-          <div className="flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-slate-500 dark:text-slate-400">
-            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-slate-200 text-[10px] font-bold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
-              3
-            </span>
-            <span>Natija</span>
-          </div>
-        </div>
-      </div>
+      {/* Gamma-Style Hero Section */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-b from-slate-950 via-slate-900 to-indigo-950/80 p-6 sm:p-10 text-white border border-slate-800 shadow-2xl mb-8">
+        {/* Ambient Glow Orbs */}
+        <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-96 h-96 bg-blue-500/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-20 right-10 w-72 h-72 bg-purple-500/15 rounded-full blur-3xl pointer-events-none" />
 
-      {/* Hero Welcome Header */}
-      <div className="mb-6 text-center">
-        <div className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3.5 py-1 text-xs font-bold text-blue-700 ring-1 ring-blue-500/20 dark:bg-blue-950/60 dark:text-blue-300 mb-2.5">
-          <Sparkles className="h-3.5 w-3.5 text-blue-500 animate-pulse" />
-          <span>OTM Standartlari Asosida Sun'iy Intellekt</span>
-        </div>
-        <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white">
-          Akademik Ishlar va Canva Slaydlari Generatori
-        </h1>
-        <p className="mt-1.5 text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-xl mx-auto">
-          Mavzuni kiriting — sun'iy intellekt rejalari, tahlillari, rasmlari va Word/PowerPoint faylini tayyorlab beradi.
-        </p>
-      </div>
+        <div className="relative z-10 text-center max-w-2xl mx-auto">
+          <div className="inline-flex items-center gap-2 rounded-full bg-blue-500/10 border border-blue-400/20 px-3.5 py-1 text-xs font-bold text-blue-300 mb-4 shadow-inner">
+            <Sparkles className="h-3.5 w-3.5 text-blue-400 animate-pulse" />
+            <span>G'oyalarni taqdim etishning yangi vositasi • 100% Bepul</span>
+          </div>
 
-      {/* 100% Free Platform Banner */}
-      <div className="mb-6 overflow-hidden rounded-3xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 p-5 text-white shadow-xl shadow-indigo-500/20 ring-1 ring-white/20 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-3.5 text-center sm:text-left">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-md shadow-inner">
-            <Sparkles className="h-6 w-6 text-amber-300" />
-          </div>
-          <div>
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-400/25 ring-1 ring-emerald-300/40 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-emerald-200 mb-1">
-              <span>🎁 100% MUTLAQO BEPUL VA CHEKSIZ</span>
-            </div>
-            <h3 className="text-base font-bold">
-              Cheksiz Taqdimotlar, Kurs Ishlari va Referatlar!
-            </h3>
-            <p className="text-xs text-white/90">
-              O'zbekiston talabalari va o'qituvchilari uchun barcha imkoniyatlar mutlaqo bepul.
-            </p>
-          </div>
+          <h1 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight sm:leading-none text-white">
+            G'oyalaringizni bir zumda <span className="bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400 bg-clip-text text-transparent">taqdimotga</span> aylantiring
+          </h1>
+          <p className="mt-3 text-xs sm:text-sm text-slate-300 max-w-xl mx-auto leading-relaxed">
+            Gamma uslubidagi sun'iy intellekt orqali taqdimot slaydlarini, kurs ishlari va referatlarni noldan bir necha soniyada tayyorlang.
+          </p>
         </div>
 
-        <div className="shrink-0 text-center sm:text-right">
-          <span className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500/30 ring-1 ring-emerald-400/50 px-4 py-2 text-xs font-black text-emerald-100 shadow-inner">
-            <span className="h-2 w-2 rounded-full bg-emerald-300 animate-ping" />
-            <span>Cheksiz Bepul Rejim</span>
-          </span>
+        {/* Gamma Formats Segmented Selector */}
+        <div className="relative z-10 mt-8 flex flex-wrap items-center justify-center gap-2">
+          {docTypesConfig.map((item) => {
+            const Icon = item.icon;
+            const isSelected = docType === item.id;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => setDocType(item.id)}
+                className={`flex items-center gap-2 rounded-2xl px-4 py-2 text-xs font-bold transition-all ${
+                  isSelected
+                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 ring-2 ring-blue-400/50 scale-105'
+                    : 'bg-slate-900/80 text-slate-300 border border-slate-800 hover:border-slate-700 hover:bg-slate-800/80'
+                }`}
+              >
+                <Icon className="h-4 w-4" />
+                <span>{item.title}</span>
+              </button>
+            );
+          })}
         </div>
-      </div>
 
-      {/* Main Creation Card */}
-      <div className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-xl backdrop-blur-sm dark:border-slate-800 dark:bg-slate-900/95 sm:p-8">
-        
-        <form onSubmit={handleSubmit} className="space-y-6">
-          
-          {/* Step 1: Document Type Selection */}
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <label className="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-100 text-[11px] font-black text-blue-700 dark:bg-blue-950 dark:text-blue-300">1</span>
-                <span>Hujjat turini tanlang:</span>
-              </label>
-            </div>
-            
-            <div className="grid gap-3.5 sm:grid-cols-2">
-              {docTypesConfig.map((item) => {
-                const Icon = item.icon;
-                const isSelected = docType === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => setDocType(item.id)}
-                    className={`group relative flex items-start gap-3.5 rounded-2xl border p-4 text-left transition-all duration-200 ${
-                      isSelected
-                        ? 'border-blue-600 bg-blue-50/70 dark:border-blue-500 dark:bg-blue-950/35 ring-2 ring-blue-500/25 shadow-md shadow-blue-500/10'
-                        : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50/60 dark:border-slate-800 dark:hover:bg-slate-800/40 hover:-translate-y-0.5'
-                    }`}
-                  >
-                    <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl shadow-md transition-transform group-hover:scale-105 ${item.iconBg}`}>
-                      <Icon className="h-5 w-5" />
-                    </div>
-                    
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-1">
-                        <span className={`text-sm font-bold truncate ${isSelected ? 'text-blue-950 dark:text-blue-100' : 'text-slate-900 dark:text-white'}`}>
-                          {item.title}
-                        </span>
-                        <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold shrink-0 ${item.badgeColor}`}>
-                          {item.badge}
-                        </span>
-                      </div>
-                      <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-2">
-                        {item.desc}
-                      </p>
-                    </div>
-
-                    {isSelected && (
-                      <div className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-white shadow-sm ring-2 ring-white dark:ring-slate-900">
-                        <CheckCircle2 className="h-3.5 w-3.5" />
-                      </div>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Step 2: Choose Count (Slaydlar yoki Betlar soni) */}
-          <div className="rounded-3xl border border-blue-100 bg-gradient-to-br from-blue-50/70 via-indigo-50/40 to-slate-50/50 p-4 sm:p-5 dark:border-slate-800 dark:from-slate-800/70 dark:via-slate-900/60 dark:to-slate-900/40">
-            <div className="flex items-center justify-between mb-2">
-              <label className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-blue-900 dark:text-blue-300">
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-[11px] font-black text-white">2</span>
-                <Sliders className="h-3.5 w-3.5 text-blue-600" />
-                <span>
-                  {docType === 'presentation'
-                    ? "Slaydlar sonini tanlang:"
-                    : "Hujjat hajmini (betlar sonini) tanlang:"}
-                </span>
-              </label>
-              
-              <span className="rounded-full bg-blue-600 px-3.5 py-1 text-xs font-black text-white shadow-sm">
-                {targetCount} {docType === 'presentation' ? 'ta slayd' : 'bet'}
-              </span>
-            </div>
-
-            <p className="text-xs text-slate-600 dark:text-slate-400 mb-3.5">
-              {docType === 'presentation'
-                ? "Taqdimotingiz aynan tanlangan hajmga mos rejalardan va to'liq slaydlardan iborat qilinadi:"
-                : "Kurs ishi yoki referatingiz belgilangan sahifa hajmiga mos ilmiy chuqurlikda yoziladi:"}
-            </p>
-
-            <div className="flex flex-wrap items-center gap-2">
-              {(docType === 'presentation'
-                ? presentationCountPresets
-                : docType === 'coursework'
-                ? courseworkCountPresets
-                : textDocCountPresets
-              ).map((count) => {
-                const isCurrent = targetCount === count;
-                const isRecommended = (docType === 'presentation' && count === 10) || (docType === 'coursework' && count === 20) || (docType === 'referat' && count === 10);
-                return (
-                  <button
-                    key={count}
-                    type="button"
-                    onClick={() => setTargetCount(count)}
-                    className={`relative rounded-xl px-4 py-2 text-xs font-bold transition-all ${
-                      isCurrent
-                        ? 'bg-blue-600 text-white shadow-md shadow-blue-500/30 scale-105 ring-2 ring-blue-400/40'
-                        : 'bg-white text-slate-700 border border-slate-200/90 hover:border-blue-400 hover:bg-blue-50/50 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700'
-                    }`}
-                  >
-                    <span>{count} {docType === 'presentation' ? 'slayd' : 'bet'}</span>
-                    {isRecommended && !isCurrent && (
-                      <span className="ml-1 text-[9px] font-black text-blue-600 dark:text-blue-400">★</span>
-                    )}
-                  </button>
-                );
-              })}
-
-              {/* Custom Number Input */}
-              <div className="flex items-center gap-1.5 ml-auto pl-2">
-                <span className="text-[11px] text-slate-500 font-medium">Boshqa:</span>
-                <input
-                  type="number"
-                  min={3}
-                  max={60}
-                  value={targetCount}
-                  onChange={(e) => setTargetCount(Math.max(3, parseInt(e.target.value) || 3))}
-                  className="w-16 rounded-xl border border-slate-300 bg-white px-2 py-1.5 text-center text-xs font-bold text-slate-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Gamma Card Density Selector (Only for presentations) */}
-          {docType === 'presentation' && (
-            <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 dark:border-slate-800 dark:bg-slate-900/60">
-              <div className="flex items-center justify-between mb-2.5">
-                <label className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-                  <Sparkles className="h-3.5 w-3.5 text-amber-500" />
-                  <span>Gamma Matn Zichligi (Card Density):</span>
-                </label>
-                <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
-                  {density === 'compact' ? '⚡ Ixcham & Vizual' : density === 'detailed' ? '📚 Batafsil & Akademik' : '⚖️ Standart'}
-                </span>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                {[
-                  {
-                    id: 'compact',
-                    title: '⚡ Ixcham & Vizual',
-                    desc: 'Katta sarlavhalar, asosiy raqamlar va kam matn (Gamma uslubi)'
-                  },
-                  {
-                    id: 'balanced',
-                    title: '⚖️ Standart',
-                    desc: 'Optimal tezislar, tushuntirishlar va ko\'rgazmali rasmlar'
-                  },
-                  {
-                    id: 'detailed',
-                    title: '📚 Batafsil & Akademik',
-                    desc: 'Chuqur ilmiy asoslar, faktlar va to\'liq matnlar'
-                  },
-                ].map((d) => (
-                  <button
-                    key={d.id}
-                    type="button"
-                    onClick={() => setDensity(d.id as any)}
-                    className={`rounded-xl border p-2.5 text-left transition-all ${
-                      density === d.id
-                        ? 'border-blue-500 bg-blue-50/80 dark:bg-blue-950/40 ring-1 ring-blue-500 text-blue-950 dark:text-blue-100 shadow-sm'
-                        : 'border-slate-200 bg-white dark:bg-slate-800 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-slate-300'
-                    }`}
-                  >
-                    <p className="text-xs font-bold">{d.title}</p>
-                    <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">{d.desc}</p>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Step 3: Topic Input */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-100 text-[11px] font-black text-blue-700 dark:bg-blue-950 dark:text-blue-300">3</span>
-                <span>Mavzuni kiriting:</span>
-              </label>
-              <span className="text-[11px] text-slate-400 font-medium">
-                To'liq va aniq yozing
-              </span>
-            </div>
-            
+        {/* Gamma Universal Prompt Box */}
+        <form onSubmit={handleSubmit} className="relative z-10 mt-6">
+          <div className="rounded-3xl bg-slate-950/90 border border-slate-700/80 p-3 sm:p-4 shadow-2xl backdrop-blur-xl ring-1 ring-white/10 transition-all focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/25">
             <div className="relative">
               <textarea
                 required
                 rows={3}
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
-                placeholder="Masalan: O'zbekistonda raqamli iqtisodiyotni rivojlantirish istiqbollari..."
-                className="w-full rounded-2xl border border-slate-300 p-4 text-sm sm:text-base font-medium text-slate-900 shadow-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white resize-none placeholder:text-slate-400"
+                placeholder="Nima yaratmoqchisiz? Masalan: Sun'iy intellektning ta'lim tizimiga ta'siri va rivojlanish istiqbollari..."
+                className="w-full bg-transparent p-2 text-sm sm:text-base font-medium text-white focus:outline-none resize-none placeholder:text-slate-500"
               />
-              <div className="absolute right-3.5 bottom-3.5 text-slate-300 dark:text-slate-600 pointer-events-none">
-                <Sparkles className="h-4 w-4" />
-              </div>
             </div>
 
-            {/* Quick Sample Topics */}
-            <div className="mt-3">
-              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                Namunaviy mavzular:
+            {/* Quick Inspiration Topics */}
+            <div className="flex flex-wrap items-center gap-1.5 pt-2 pb-3 border-b border-slate-800/80">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mr-1">
+                Tavsiya:
               </span>
-              <div className="mt-1.5 flex flex-wrap gap-1.5">
-                {sampleTopics.map((sTopic, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={() => setTopic(sTopic)}
-                    className="flex items-center gap-1 rounded-xl border border-slate-200/90 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-600 hover:border-blue-400 hover:bg-blue-50/60 hover:text-blue-700 transition-all dark:border-slate-800 dark:bg-slate-800/60 dark:text-slate-400 dark:hover:text-blue-300"
-                  >
-                    <Hash className="h-3 w-3 text-slate-400" />
-                    <span>{sTopic}</span>
-                  </button>
-                ))}
+              {sampleTopics.slice(0, 4).map((sTopic, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => setTopic(sTopic)}
+                  className="rounded-lg bg-slate-900 px-2 py-0.5 text-[10px] font-medium text-slate-300 border border-slate-800 hover:border-blue-400 hover:text-white transition-colors"
+                >
+                  {sTopic.slice(0, 32)}...
+                </button>
+              ))}
+            </div>
+
+            {/* Controls Bar: Count, Density, Submit */}
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+              <div className="flex flex-wrap items-center gap-2">
+                {/* Count selector */}
+                <div className="flex items-center gap-1 rounded-xl bg-slate-900/90 border border-slate-800 p-1">
+                  {(docType === 'presentation'
+                    ? [5, 8, 10, 12, 15]
+                    : [10, 15, 20, 25]
+                  ).map((count) => (
+                    <button
+                      key={count}
+                      type="button"
+                      onClick={() => setTargetCount(count)}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                        targetCount === count
+                          ? 'bg-blue-600 text-white shadow-sm'
+                          : 'text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      {count} {docType === 'presentation' ? 'slayd' : 'bet'}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Density selector for presentation */}
+                {docType === 'presentation' && (
+                  <div className="flex items-center gap-1 rounded-xl bg-slate-900/90 border border-slate-800 p-1">
+                    {[
+                      { id: 'compact', label: '⚡ Ixcham' },
+                      { id: 'balanced', label: '⚖️ Standart' },
+                      { id: 'detailed', label: '📚 Batafsil' },
+                    ].map((d) => (
+                      <button
+                        key={d.id}
+                        type="button"
+                        onClick={() => setDensity(d.id as any)}
+                        className={`px-2 py-1 rounded-lg text-[11px] font-bold transition-all ${
+                          density === d.id
+                            ? 'bg-indigo-600 text-white shadow-sm'
+                            : 'text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        {d.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
+
+              {/* Submit CTA */}
+              <button
+                type="submit"
+                disabled={isLoading || !topic.trim()}
+                className="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 px-5 py-2.5 text-xs sm:text-sm font-black text-white shadow-lg shadow-indigo-600/30 hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
+              >
+                {isLoading ? (
+                  <>
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    <span>AI tuzmoqda...</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4 text-amber-300" />
+                    <span>Rejalarni tuzish</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </>
+                )}
+              </button>
             </div>
           </div>
-
-          {/* Advanced / Academic Details Toggle */}
-          <div className="border-t border-slate-100 pt-3 dark:border-slate-800">
-            <button
-              type="button"
-              onClick={() => setShowAdvanced(!showAdvanced)}
-              className="flex items-center gap-2 text-xs font-bold text-blue-600 hover:text-blue-700 dark:text-blue-400 transition-colors"
-            >
-              {showAdvanced ? (
-                <>
-                  <ChevronUp className="h-4 w-4" />
-                  <span>Qo'shimcha parametrlarni yashirish</span>
-                </>
-              ) : (
-                <>
-                  <ChevronDown className="h-4 w-4" />
-                  <span>Titul varag'i va OTM ma'lumotlarini sozlash (Universitet, F.I.Sh...)</span>
-                </>
-              )}
-            </button>
-
-            {showAdvanced && (
-              <div className="mt-4 grid gap-3.5 sm:grid-cols-2 rounded-2xl bg-slate-50/80 p-4 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800">
-                <div>
-                  <label className="text-[11px] font-bold text-slate-600 dark:text-slate-400 flex items-center gap-1">
-                    <Building className="h-3 w-3 text-blue-500" />
-                    <span>Universitet / Institut</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={university}
-                    onChange={(e) => setUniversity(e.target.value)}
-                    className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-medium dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:outline-none focus:border-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="text-[11px] font-bold text-slate-600 dark:text-slate-400 flex items-center gap-1">
-                    <GraduationCap className="h-3 w-3 text-blue-500" />
-                    <span>Fakultet / Yo'nalish</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={faculty}
-                    onChange={(e) => setFaculty(e.target.value)}
-                    className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-medium dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:outline-none focus:border-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="text-[11px] font-bold text-slate-600 dark:text-slate-400 flex items-center gap-1">
-                    <User className="h-3 w-3 text-blue-500" />
-                    <span>Talaba F.I.Sh.</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={authorName}
-                    onChange={(e) => setAuthorName(e.target.value)}
-                    className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-medium dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:outline-none focus:border-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="text-[11px] font-bold text-slate-600 dark:text-slate-400 flex items-center gap-1">
-                    <Award className="h-3 w-3 text-blue-500" />
-                    <span>Ilmiy Rahbar</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={supervisorName}
-                    onChange={(e) => setSupervisorName(e.target.value)}
-                    className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-medium dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:outline-none focus:border-blue-500"
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Submit / Proceed CTA Button */}
-          <div className="pt-2">
-            <button
-              type="submit"
-              disabled={isLoading || !topic.trim()}
-              className="w-full flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 py-4 text-base font-black text-white shadow-xl shadow-indigo-500/25 transition-all hover:scale-[1.01] hover:shadow-indigo-500/35 active:scale-[0.99] disabled:opacity-50"
-            >
-              {isLoading ? (
-                <>
-                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                  <span>Sun'iy intellekt rejalarni tuzmoqda...</span>
-                </>
-              ) : (
-                <>
-                  <Sparkles className="h-5 w-5 text-amber-300" />
-                  <span>
-                    {targetCount} {docType === 'presentation' ? 'ta slaydli' : 'betlik'} rejalarni tuzish
-                  </span>
-                  <ArrowRight className="h-5 w-5 ml-1" />
-                </>
-              )}
-            </button>
-          </div>
-
         </form>
+
+        {/* Advanced Title / University Settings Dropdown */}
+        <div className="relative z-10 mt-4 text-center">
+          <button
+            type="button"
+            onClick={() => setShowAdvanced(!showAdvanced)}
+            className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-blue-300 transition-colors"
+          >
+            <span>OTM va Titul ma'lumotlari (F.I.Sh, Universitet)</span>
+            {showAdvanced ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+          </button>
+
+          {showAdvanced && (
+            <div className="mt-3 grid gap-3 sm:grid-cols-2 text-left rounded-2xl bg-slate-950/80 p-4 border border-slate-800">
+              <div>
+                <label className="text-[10px] font-bold uppercase text-slate-400">Universitet / Institut</label>
+                <input
+                  type="text"
+                  value={university}
+                  onChange={(e) => setUniversity(e.target.value)}
+                  className="mt-1 w-full rounded-xl border border-slate-800 bg-slate-900 px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold uppercase text-slate-400">Fakultet / Yo'nalish</label>
+                <input
+                  type="text"
+                  value={faculty}
+                  onChange={(e) => setFaculty(e.target.value)}
+                  className="mt-1 w-full rounded-xl border border-slate-800 bg-slate-900 px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold uppercase text-slate-400">Talaba F.I.Sh.</label>
+                <input
+                  type="text"
+                  value={authorName}
+                  onChange={(e) => setAuthorName(e.target.value)}
+                  className="mt-1 w-full rounded-xl border border-slate-800 bg-slate-900 px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold uppercase text-slate-400">Ilmiy Rahbar</label>
+                <input
+                  type="text"
+                  value={supervisorName}
+                  onChange={(e) => setSupervisorName(e.target.value)}
+                  className="mt-1 w-full rounded-xl border border-slate-800 bg-slate-900 px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500"
+                />
+              </div>
+            </div>
+          )}
+        </div>
 
       </div>
 
