@@ -508,34 +508,106 @@ function generateFallbackSlides(
   const currentCount = slides.length;
   const remainingForAnswers = Math.max(outlines.length, targetCount - currentCount - reservedEndSlides);
 
-  // Har bir reja uchun asosiy slayd, agar joy qolsa 2-qism amaliy javob slaydi qo'shiladi
+  // Har bir reja uchun Gamma-style xilma-xil va jozibali layoutlar
   let answersCreated = 0;
   outlines.forEach((out, idx) => {
     const cleanTitle = out.title;
     const outPhoto = getSmartTopicPhoto(cleanTitle, topic, cleanTitle, idx);
-    
-    // 1-Javob slaydi: Nazariya va mohiyat
-    slides.push({
-      id: `slide-${currentSlideNum}`,
-      slideNumber: currentSlideNum++,
-      title: cleanTitle,
-      subtitle: "Konseptual mazmun va nazariy asoslar",
-      bullets: [
-        `«${cleanTitle}»ning fundamental mohiyati va dolzarbligi`,
-        "Ilmiy asoslangan tamoyillar va tasniflash mezonlari",
-        "Sohadagi mavjud qonuniyatlar va konseptual yondashuvlar",
-        "Amaliyot bilan nazariyaning uzviy bog'liqligi"
-      ],
-      notes: `Ushbu slaydda aynan "${cleanTitle}" bo'yicha nazariy asoslar va tushunchalarni bayon qilamiz...`,
-      layout: 'split',
-      imageUrl: outPhoto.url,
-      imageCaption: outPhoto.caption,
-      themeId
-    });
+    const lower = cleanTitle.toLowerCase();
+
+    // 1-Javob slaydi: Gamma uslubidagi intellektual layout tanlash
+    if (lower.includes('bosqich') || lower.includes('tarix') || lower.includes('rivojlanish') || lower.includes('jarayon') || lower.includes('istiqbol')) {
+      // Gamma Timeline / Steps kartasi
+      slides.push({
+        id: `slide-${currentSlideNum}`,
+        slideNumber: currentSlideNum++,
+        title: cleanTitle,
+        subtitle: "Bosqichma-bosqich rivojlanish va strategik yo'nalishlar",
+        bullets: [
+          "Boshlang'ich tadqiqot va me'yoriy asoslarni o'rganish",
+          "Asosiy amaliy mexanizmlarni shakllantirish va sinovdan o'tkazish",
+          "Natijalarni baholash va keng ko'lamda tatbiq etish"
+        ],
+        notes: `Ushbu slaydda jarayonning asosiy bosqichlarini bosqichma-bosqich ko'rib chiqamiz...`,
+        layout: 'timeline',
+        timelineSteps: [
+          { step: 1, title: "1-Bosqich: Tahlil & Diagnostika", desc: "Mavjud holat va birlamchi ko'rsatkichlarni chuqur o'rganish", dateOrPhase: "Dastlabki qadam" },
+          { step: 2, title: "2-Bosqich: Amaliy Implementatsiya", desc: "Asosiy mexanizmlar va raqamli vositalarni joriy etish", dateOrPhase: "Asosiy qism" },
+          { step: 3, title: "3-Bosqich: Natijalarni Baholash", desc: "Erishilgan samaradorlikni tahlil qilish va optimallashtirish", dateOrPhase: "Yakuniy xulosa" }
+        ],
+        imageUrl: outPhoto.url,
+        imageCaption: outPhoto.caption,
+        themeId
+      });
+    } else if (lower.includes('statistika') || lower.includes('raqam') || lower.includes('ko\'rsatkich') || lower.includes('tahlil') || lower.includes('samaradorlik') || lower.includes('iqtisod')) {
+      // Gamma KPI / Stats kartasi
+      slides.push({
+        id: `slide-${currentSlideNum}`,
+        slideNumber: currentSlideNum++,
+        title: cleanTitle,
+        subtitle: "Asosiy raqamlar, ko'rsatkichlar va tahliliy natijalar",
+        bullets: [
+          "Samaradorlikning o'sish sur'atlari va prognozlar",
+          "Vaqt va resurslarni optimallashtirish darajasi",
+          "O'zbekistonda kutilayotgan umumiy ko'rsatkichlar"
+        ],
+        notes: `Statistik tahlillar shuni ko'rsatadiki, mazkur ko'rsatkichlar sohada jiddiy o'sishni ta'minlaydi...`,
+        layout: 'stats',
+        statsData: [
+          { value: "+38%", label: "Samaradorlik o'sishi", change: "Yillik ko'rsatkich" },
+          { value: "2.5x", label: "Jarayonlar tezlashuvi", change: "Raqamlashtirish orqali" },
+          { value: "92%", label: "Muvaffaqiyatli qamrov", change: "O'zbekiston OTMlarida" }
+        ],
+        imageUrl: outPhoto.url,
+        imageCaption: outPhoto.caption,
+        themeId
+      });
+    } else if (lower.includes('tur') || lower.includes('tasnif') || lower.includes('yo\'nalish') || lower.includes('afzallik') || lower.includes('xususiyat') || lower.includes('tamoyil')) {
+      // Gamma 3-Ustunli (Columns) kartasi
+      slides.push({
+        id: `slide-${currentSlideNum}`,
+        slideNumber: currentSlideNum++,
+        title: cleanTitle,
+        subtitle: "Asosiy toifalar, yo'nalishlar va tizimli tasnif",
+        bullets: [
+          "Fundamental nazariy yo'nalishlar",
+          "Amaliy qo'llanilish mexanizmlari",
+          "Kelajakdagi innovatsion istiqbollar"
+        ],
+        notes: `Ushbu masalani uchta asosiy ustun doirasida batafsil tahlil qilamiz...`,
+        layout: 'columns',
+        columnsData: [
+          { title: "Nazariy Poydevor", desc: "Ilmiy asoslangan tamoyillar va konseptual yondashuvlar majmuasi", tag: "1-Yo'nalish" },
+          { title: "Amaliy Asboblar", desc: "Ilg'or usul va texnologiyalarni ishlab chiqarishga tatbiq etish", tag: "2-Yo'nalish" },
+          { title: "Monitoring & Nazorat", desc: "Kutilgan natijalarga erishishni doimiy ta'minlash choralari", tag: "3-Yo'nalish" }
+        ],
+        imageUrl: outPhoto.url,
+        imageCaption: outPhoto.caption,
+        themeId
+      });
+    } else {
+      // Gamma Split (Rasm + Zamonaviy tegli kartalar)
+      slides.push({
+        id: `slide-${currentSlideNum}`,
+        slideNumber: currentSlideNum++,
+        title: cleanTitle,
+        subtitle: "Konseptual mazmun va nazariy asoslar",
+        bullets: [
+          `«${cleanTitle}»ning fundamental mohiyati va dolzarbligi`,
+          "Ilmiy asoslangan tamoyillar va tasniflash mezonlari",
+          "Sohadagi mavjud qonuniyatlar va konseptual yondashuvlar",
+          "Amaliyot bilan nazariyaning uzviy bog'liqligi"
+        ],
+        notes: `Ushbu slaydda aynan "${cleanTitle}" bo'yicha nazariy asoslar va tushunchalarni bayon qilamiz...`,
+        layout: 'split',
+        imageUrl: outPhoto.url,
+        imageCaption: outPhoto.caption,
+        themeId
+      });
+    }
     answersCreated++;
 
-    // Agar foydalanuvchi ko'p slayd (masalan 12, 15, 20) tanlagan bo'lsa,
-    // shu rejaga 2-qo'shimcha tahliliy javob slaydi ham qo'shamiz!
+    // Agar foydalanuvchi ko'p slayd tanlagan bo'lsa, 2-tahliliy javob slaydi qo'shiladi
     if (answersCreated < remainingForAnswers && (idx < remainingForAnswers - outlines.length)) {
       const analysisPhoto = getSmartTopicPhoto(`${cleanTitle} tahlili amaliy natijalar`, topic, cleanTitle, idx + 4);
       slides.push({
@@ -550,7 +622,12 @@ function generateFallbackSlides(
           "Kutilayotgan ijtimoiy-iqtisodiy natijalar"
         ],
         notes: `Mazkur masalaning amaliy tahlili va statistik raqamlariga to'xtalib o'tamiz...`,
-        layout: 'split',
+        layout: 'columns',
+        columnsData: [
+          { title: "Joriy Holat", desc: "Mavjud ko'rsatkichlar tahlili va muammoli nuqtalar", tag: "Tahlil" },
+          { title: "Xalqaro Tajriba", desc: "Yetakchi xorijiy OTM va laboratoriyalar yechimlari", tag: "Qiyos" },
+          { title: "Kutilayotgan Samara", desc: "25-30% tejamkorlik va yuqori ilmiy unumdorlik", tag: "Yechim" }
+        ],
         imageUrl: analysisPhoto.url,
         imageCaption: analysisPhoto.caption,
         themeId

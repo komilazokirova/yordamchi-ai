@@ -648,7 +648,521 @@ export async function exportPresentationToPptx(
       }
 
     // ==========================================
-    // 4. REJA JAVOBLARI + HAQIQIY RASM SLAYDI (Canva uslubida split)
+    // 4. GAMMA STATS / KPI SLAYDI
+    // ==========================================
+    } else if (slide.layout === 'stats' || (slide.statsData && slide.statsData.length > 0)) {
+      pptxSlide.addText(`STATISTIK TAHLIL VA KO'RSATKICHLAR`, {
+        x: '6%',
+        y: '6%',
+        w: '88%',
+        h: '4%',
+        fontSize: 10.5,
+        bold: true,
+        color: theme.pptxAccentColor,
+        fontFace: mainFont,
+      });
+
+      pptxSlide.addText(slide.title, {
+        x: '6%',
+        y: '10%',
+        w: '88%',
+        h: '7%',
+        fontSize: 22,
+        bold: true,
+        color: theme.pptxTextColor,
+        fontFace: mainFont,
+      });
+
+      if (slide.subtitle) {
+        pptxSlide.addText(slide.subtitle, {
+          x: '6%',
+          y: '17%',
+          w: '88%',
+          h: '4%',
+          fontSize: 12,
+          italic: true,
+          color: theme.pptxTextColor,
+          fontFace: mainFont,
+        });
+      }
+
+      // Yuqoridagi xulosa / kirish fikri (slide.bullets[0])
+      if (slide.bullets && slide.bullets.length > 0) {
+        pptxSlide.addShape(pres.ShapeType.roundRect, {
+          x: '6%',
+          y: '22%',
+          w: '88%',
+          h: '10%',
+          fill: { color: theme.pptxCardBg },
+          line: { color: theme.pptxAccentColor, width: 0.8 },
+          rectRadius: 0.08,
+        });
+        pptxSlide.addText(`💡 ${slide.bullets[0]}`, {
+          x: '8%',
+          y: '22%',
+          w: '84%',
+          h: '10%',
+          fontSize: 11.5,
+          color: theme.pptxTextColor,
+          valign: 'middle',
+          fontFace: mainFont,
+        });
+      }
+
+      // 3 ta Katta KPI Kartochkalari
+      const stats = (slide.statsData && slide.statsData.length > 0) ? slide.statsData.slice(0, 3) : [
+        { value: '+35%', label: "Samaradorlik o'sishi", change: "Yillik prognoz" },
+        { value: '2.5x', label: "Jarayonlar tezlashuvi", change: "Raqamlashtirish" },
+        { value: '92%', label: "Muvaffaqiyatli qamrov", change: "O'zbekistonda" }
+      ];
+
+      const startY = (slide.bullets && slide.bullets.length > 0) ? 35 : 25;
+      const cardHeight = (slide.bullets && slide.bullets.length > 0) ? 52 : 62;
+
+      stats.forEach((st, sIdx) => {
+        const cardX = 6 + sIdx * 30.5;
+
+        // Katta kartochka
+        pptxSlide.addShape(pres.ShapeType.roundRect, {
+          x: `${cardX}%`,
+          y: `${startY}%`,
+          w: '27%',
+          h: `${cardHeight}%`,
+          fill: { color: theme.pptxCardBg },
+          line: { color: theme.pptxAccentColor, width: 1.5 },
+          rectRadius: 0.12,
+        });
+
+        // Yuqori badge
+        if (st.change) {
+          pptxSlide.addShape(pres.ShapeType.roundRect, {
+            x: `${cardX + 2}%`,
+            y: `${startY + 3}%`,
+            w: '23%',
+            h: '6%',
+            fill: { color: theme.pptxAccentColor },
+            rectRadius: 0.1,
+          });
+          pptxSlide.addText(st.change.toUpperCase(), {
+            x: `${cardX + 2}%`,
+            y: `${startY + 3}%`,
+            w: '23%',
+            h: '6%',
+            fontSize: 9.5,
+            bold: true,
+            color: badgeTextColor,
+            align: 'center',
+            valign: 'middle',
+            fontFace: mainFont,
+          });
+        }
+
+        // Katta Raqam (Metric)
+        pptxSlide.addText(st.value, {
+          x: `${cardX + 1}%`,
+          y: `${startY + 11}%`,
+          w: '25%',
+          h: '18%',
+          fontSize: 34,
+          bold: true,
+          color: theme.pptxAccentColor,
+          align: 'center',
+          valign: 'middle',
+          fontFace: mainFont,
+        });
+
+        // O'rta Chiziq
+        pptxSlide.addShape(pres.ShapeType.rect, {
+          x: `${cardX + 7}%`,
+          y: `${startY + 31}%`,
+          w: '13%',
+          h: '0.4%',
+          fill: { color: theme.pptxAccentColor },
+          line: { color: theme.pptxAccentColor },
+        });
+
+        // Tavsif matni (Label)
+        pptxSlide.addText(st.label, {
+          x: `${cardX + 2}%`,
+          y: `${startY + 33}%`,
+          w: '23%',
+          h: '16%',
+          fontSize: 12,
+          bold: true,
+          color: theme.pptxTextColor,
+          align: 'center',
+          valign: 'top',
+          fontFace: mainFont,
+        });
+      });
+
+    // ==========================================
+    // 5. GAMMA COLUMNS (3 USTUNLI KARTALAR)
+    // ==========================================
+    } else if (slide.layout === 'columns' || (slide.columnsData && slide.columnsData.length > 0)) {
+      pptxSlide.addText(`TIZIMLI TASNIF VA YO'NALISHLAR`, {
+        x: '6%',
+        y: '6%',
+        w: '88%',
+        h: '4%',
+        fontSize: 10.5,
+        bold: true,
+        color: theme.pptxAccentColor,
+        fontFace: mainFont,
+      });
+
+      pptxSlide.addText(slide.title, {
+        x: '6%',
+        y: '10%',
+        w: '88%',
+        h: '7%',
+        fontSize: 22,
+        bold: true,
+        color: theme.pptxTextColor,
+        fontFace: mainFont,
+      });
+
+      if (slide.subtitle) {
+        pptxSlide.addText(slide.subtitle, {
+          x: '6%',
+          y: '17%',
+          w: '88%',
+          h: '4%',
+          fontSize: 12,
+          italic: true,
+          color: theme.pptxTextColor,
+          fontFace: mainFont,
+        });
+      }
+
+      const columns = (slide.columnsData && slide.columnsData.length > 0) ? slide.columnsData.slice(0, 3) : [
+        { title: "Nazariy Asoslar", desc: "Sohaning fundamental tushunchalari va ilmiy metodologiyasi", tag: "1-Yo'nalish" },
+        { title: "Amaliy Tatbiq", desc: "Ishlab chiqarish va xizmat ko'rsatish jarayonlariga integratsiya", tag: "2-Yo'nalish" },
+        { title: "Kutilayotgan Natija", desc: "Samaradorlikni oshirish va barqaror rivojlanishni ta'minlash", tag: "3-Yo'nalish" }
+      ];
+
+      columns.forEach((col, cIdx) => {
+        const cardX = 6 + cIdx * 30.5;
+
+        // Kartochka foni
+        pptxSlide.addShape(pres.ShapeType.roundRect, {
+          x: `${cardX}%`,
+          y: '24%',
+          w: '27%',
+          h: '63%',
+          fill: { color: theme.pptxCardBg },
+          line: { color: theme.pptxAccentColor, width: 1.2 },
+          rectRadius: 0.1,
+        });
+
+        // Tag nishoni
+        const tagText = col.tag || `${cIdx + 1}-YO'NALISH`;
+        pptxSlide.addShape(pres.ShapeType.roundRect, {
+          x: `${cardX + 2}%`,
+          y: '27%',
+          w: '23%',
+          h: '5.5%',
+          fill: { color: theme.pptxAccentColor },
+          rectRadius: 0.08,
+        });
+        pptxSlide.addText(tagText.toUpperCase(), {
+          x: `${cardX + 2}%`,
+          y: '27%',
+          w: '23%',
+          h: '5.5%',
+          fontSize: 9.5,
+          bold: true,
+          color: badgeTextColor,
+          align: 'center',
+          valign: 'middle',
+          fontFace: mainFont,
+        });
+
+        // Ustun sarlavhasi
+        pptxSlide.addText(col.title, {
+          x: `${cardX + 2}%`,
+          y: '35%',
+          w: '23%',
+          h: '10%',
+          fontSize: 14,
+          bold: true,
+          color: theme.pptxTextColor,
+          align: 'center',
+          valign: 'middle',
+          fontFace: mainFont,
+        });
+
+        // Ajratuvchi chiziq
+        pptxSlide.addShape(pres.ShapeType.rect, {
+          x: `${cardX + 7}%`,
+          y: '47%',
+          w: '13%',
+          h: '0.4%',
+          fill: { color: theme.pptxAccentColor },
+          line: { color: theme.pptxAccentColor },
+        });
+
+        // Ustun tavsifi (desc)
+        pptxSlide.addText(col.desc, {
+          x: `${cardX + 2.5}%`,
+          y: '50%',
+          w: '22%',
+          h: '32%',
+          fontSize: 11.5,
+          color: theme.pptxTextColor,
+          align: 'left',
+          valign: 'top',
+          fontFace: mainFont,
+          lineSpacing: 18,
+        });
+      });
+
+    // ==========================================
+    // 6. GAMMA TIMELINE (BOSQICHMA-BOSQICH JARAYON)
+    // ==========================================
+    } else if (slide.layout === 'timeline' || (slide.timelineSteps && slide.timelineSteps.length > 0)) {
+      pptxSlide.addText(`BOSQICHMA-BOSQICH JARAYON`, {
+        x: '6%',
+        y: '6%',
+        w: '88%',
+        h: '4%',
+        fontSize: 10.5,
+        bold: true,
+        color: theme.pptxAccentColor,
+        fontFace: mainFont,
+      });
+
+      pptxSlide.addText(slide.title, {
+        x: '6%',
+        y: '10%',
+        w: '88%',
+        h: '7%',
+        fontSize: 22,
+        bold: true,
+        color: theme.pptxTextColor,
+        fontFace: mainFont,
+      });
+
+      if (slide.subtitle) {
+        pptxSlide.addText(slide.subtitle, {
+          x: '6%',
+          y: '17%',
+          w: '88%',
+          h: '4%',
+          fontSize: 12,
+          italic: true,
+          color: theme.pptxTextColor,
+          fontFace: mainFont,
+        });
+      }
+
+      // Gorizontal tutashtiruvchi chiziq (Connector)
+      pptxSlide.addShape(pres.ShapeType.rect, {
+        x: '15%',
+        y: '27.5%',
+        w: '70%',
+        h: '0.6%',
+        fill: { color: theme.pptxAccentColor },
+        line: { color: theme.pptxAccentColor },
+      });
+
+      const steps = (slide.timelineSteps && slide.timelineSteps.length > 0) ? slide.timelineSteps.slice(0, 3) : [
+        { step: 1, title: "1-Bosqich: Tahlil & Diagnostika", desc: "Mavjud ko'rsatkichlar va me'yoriy asoslarni o'rganish", dateOrPhase: "Dastlabki faza" },
+        { step: 2, title: "2-Bosqich: Implementatsiya", desc: "Amaliy mexanizmlar va raqamli vositalarni joriy etish", dateOrPhase: "Asosiy faza" },
+        { step: 3, title: "3-Bosqich: Baholash & Xulosa", desc: "Erishilgan natijalar va samaradorlikni tahlil qilish", dateOrPhase: "Yakuniy faza" }
+      ];
+
+      steps.forEach((st, sIdx) => {
+        const cardX = 6 + sIdx * 30.5;
+
+        // Step raqami ovals/circle
+        pptxSlide.addShape(pres.ShapeType.roundRect, {
+          x: `${cardX + 10}%`,
+          y: '24%',
+          w: '7%',
+          h: '7%',
+          fill: { color: theme.pptxAccentColor },
+          rectRadius: 0.5,
+          line: { color: theme.pptxBg, width: 2 },
+        });
+
+        pptxSlide.addText(`${st.step || sIdx + 1}`, {
+          x: `${cardX + 10}%`,
+          y: '24%',
+          w: '7%',
+          h: '7%',
+          fontSize: 14,
+          bold: true,
+          color: badgeTextColor,
+          align: 'center',
+          valign: 'middle',
+          fontFace: mainFont,
+        });
+
+        // Bosqich kartochkasi
+        pptxSlide.addShape(pres.ShapeType.roundRect, {
+          x: `${cardX}%`,
+          y: '34%',
+          w: '27%',
+          h: '53%',
+          fill: { color: theme.pptxCardBg },
+          line: { color: theme.pptxAccentColor, width: 1.2 },
+          rectRadius: 0.1,
+        });
+
+        // Faza / Sana nishoni
+        if (st.dateOrPhase) {
+          pptxSlide.addShape(pres.ShapeType.roundRect, {
+            x: `${cardX + 2}%`,
+            y: '36.5%',
+            w: '23%',
+            h: '5%',
+            fill: { color: theme.pptxAccentColor },
+            rectRadius: 0.08,
+          });
+          pptxSlide.addText(st.dateOrPhase.toUpperCase(), {
+            x: `${cardX + 2}%`,
+            y: '36.5%',
+            w: '23%',
+            h: '5%',
+            fontSize: 9,
+            bold: true,
+            color: badgeTextColor,
+            align: 'center',
+            valign: 'middle',
+            fontFace: mainFont,
+          });
+        }
+
+        // Bosqich sarlavhasi
+        pptxSlide.addText(st.title, {
+          x: `${cardX + 2}%`,
+          y: '43%',
+          w: '23%',
+          h: '10%',
+          fontSize: 13,
+          bold: true,
+          color: theme.pptxTextColor,
+          align: 'center',
+          valign: 'middle',
+          fontFace: mainFont,
+        });
+
+        // Ajratuvchi chiziq
+        pptxSlide.addShape(pres.ShapeType.rect, {
+          x: `${cardX + 7}%`,
+          y: '55%',
+          w: '13%',
+          h: '0.4%',
+          fill: { color: theme.pptxAccentColor },
+          line: { color: theme.pptxAccentColor },
+        });
+
+        // Bosqich tavsifi (desc)
+        pptxSlide.addText(st.desc, {
+          x: `${cardX + 2.5}%`,
+          y: '58%',
+          w: '22%',
+          h: '26%',
+          fontSize: 11,
+          color: theme.pptxTextColor,
+          align: 'left',
+          valign: 'top',
+          fontFace: mainFont,
+          lineSpacing: 17,
+        });
+      });
+
+    // ==========================================
+    // 7. GAMMA QUOTE (DOLZARB IQTIBOS)
+    // ==========================================
+    } else if (slide.layout === 'quote') {
+      pptxSlide.addText(`DOLZARB IQTIBOS VA XULOSA`, {
+        x: '6%',
+        y: '6%',
+        w: '88%',
+        h: '4%',
+        fontSize: 10.5,
+        bold: true,
+        color: theme.pptxAccentColor,
+        fontFace: mainFont,
+      });
+
+      pptxSlide.addText(slide.title, {
+        x: '6%',
+        y: '10%',
+        w: '88%',
+        h: '7%',
+        fontSize: 22,
+        bold: true,
+        color: theme.pptxTextColor,
+        fontFace: mainFont,
+      });
+
+      // Markaziy Katta Iqtibos Kartasi
+      pptxSlide.addShape(pres.ShapeType.roundRect, {
+        x: '10%',
+        y: '22%',
+        w: '80%',
+        h: '65%',
+        fill: { color: theme.pptxCardBg },
+        line: { color: theme.pptxAccentColor, width: 2 },
+        rectRadius: 0.12,
+      });
+
+      // Katta Qo'shtirnoq belgisi
+      pptxSlide.addText(`“`, {
+        x: '14%',
+        y: '25%',
+        w: '12%',
+        h: '12%',
+        fontSize: 48,
+        bold: true,
+        color: theme.pptxAccentColor,
+        fontFace: 'Georgia',
+      });
+
+      const quoteText = (slide.bullets && slide.bullets[0]) || slide.subtitle || slide.title;
+      pptxSlide.addText(`«${quoteText}»`, {
+        x: '14%',
+        y: '38%',
+        w: '72%',
+        h: '30%',
+        fontSize: 17,
+        italic: true,
+        color: theme.pptxTextColor,
+        align: 'center',
+        valign: 'middle',
+        fontFace: 'Georgia',
+        lineSpacing: 26,
+      });
+
+      // Muallif nishoni
+      const authorText = slide.quoteAuthor || authorName || "Soha Mutaxassisi";
+      pptxSlide.addShape(pres.ShapeType.roundRect, {
+        x: '35%',
+        y: '73%',
+        w: '30%',
+        h: '7%',
+        fill: { color: theme.pptxAccentColor },
+        rectRadius: 0.1,
+      });
+
+      pptxSlide.addText(`— ${authorText}`, {
+        x: '35%',
+        y: '73%',
+        w: '30%',
+        h: '7%',
+        fontSize: 11.5,
+        bold: true,
+        color: badgeTextColor,
+        align: 'center',
+        valign: 'middle',
+        fontFace: mainFont,
+      });
+
+    // ==========================================
+    // 8. REJA JAVOBLARI + HAQIQIY RASM SLAYDI (Canva uslubida split)
     // ==========================================
     } else if (slide.layout === 'split' || slide.imageUrl) {
       pptxSlide.addText(`REJA TAHLILI`, {

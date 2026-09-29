@@ -184,7 +184,8 @@ export default function HomePage() {
           currentDoc.title,
           currentDoc.outlines,
           currentDoc.selectedThemeId || DEFAULT_THEME_ID,
-          genOptions
+          genOptions,
+          currentDoc.targetCount || 10
         );
 
         const updatedDoc = { ...currentDoc, slides };

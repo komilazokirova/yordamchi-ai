@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { SlideData, SlideTheme } from '@/types';
+import { SlideData, SlideTheme, SlideLayoutType, StatItem, ColumnCardItem, TimelineStepItem } from '@/types';
 import { SLIDE_THEMES, getTheme } from '@/lib/slide-themes';
 import { exportPresentationToPptx } from '@/lib/export-pptx';
 import { getPhotosForTopic, ACADEMIC_CATEGORIES } from '@/lib/topic-images';
@@ -22,7 +22,14 @@ import {
   Edit3,
   Scissors,
   ArrowRight,
-  MoveRight
+  MoveRight,
+  BarChart3,
+  Columns3,
+  Clock,
+  Quote,
+  Split,
+  ListOrdered,
+  Layers
 } from 'lucide-react';
 
 interface PresentationStudioProps {
@@ -358,6 +365,103 @@ export const PresentationStudio: React.FC<PresentationStudioProps> = ({
     ? getPhotosForTopic(topic + ' ' + (currentSlide?.title || ''))
     : (ACADEMIC_CATEGORIES[selectedCategoryKey]?.photos || []);
 
+  // Gamma 1-Click Layout Switcher
+  const handleSwitchLayout = (newLayout: SlideLayoutType) => {
+    let updatedSlide: SlideData = { ...currentSlide, layout: newLayout };
+
+    if (newLayout === 'stats' && (!updatedSlide.statsData || updatedSlide.statsData.length === 0)) {
+      updatedSlide.statsData = [
+        { value: '+38%', label: currentSlide.bullets[0]?.slice(0, 32) || "Samaradorlik o'sishi", change: "Prognoz" },
+        { value: '2.5x', label: currentSlide.bullets[1]?.slice(0, 32) || "Jarayonlar tezlashuvi", change: "Raqamlashtirish" },
+        { value: '92%', label: currentSlide.bullets[2]?.slice(0, 32) || "Qamrov va natijadorlik", change: "O'zbekistonda" }
+      ];
+    } else if (newLayout === 'columns' && (!updatedSlide.columnsData || updatedSlide.columnsData.length === 0)) {
+      updatedSlide.columnsData = [
+        {
+          title: currentSlide.bullets[0]?.split('—')[0]?.slice(0, 22) || "Nazariy Asoslar",
+          desc: currentSlide.bullets[0] || "Fundamental ilmiy tushunchalar va tamoyillar majmuasi",
+          tag: "1-Yo'nalish"
+        },
+        {
+          title: currentSlide.bullets[1]?.split('—')[0]?.slice(0, 22) || "Amaliy Vositalar",
+          desc: currentSlide.bullets[1] || "Zamonaviy texnologiyalarni amaliyotga tatbiq etish mexanizmlari",
+          tag: "2-Yo'nalish"
+        },
+        {
+          title: currentSlide.bullets[2]?.split('—')[0]?.slice(0, 22) || "Monitoring & Natija",
+          desc: currentSlide.bullets[2] || "Kutilgan natijalarga erishish va doimiy monitoring choralari",
+          tag: "3-Yo'nalish"
+        }
+      ];
+    } else if (newLayout === 'timeline' && (!updatedSlide.timelineSteps || updatedSlide.timelineSteps.length === 0)) {
+      updatedSlide.timelineSteps = [
+        {
+          step: 1,
+          title: currentSlide.bullets[0]?.split('—')[0]?.slice(0, 25) || "1-Bosqich: Diagnostika",
+          desc: currentSlide.bullets[0] || "Mavjud holat va birlamchi ko'rsatkichlarni chuqur o'rganish",
+          dateOrPhase: "Boshlang'ich faza"
+        },
+        {
+          step: 2,
+          title: currentSlide.bullets[1]?.split('—')[0]?.slice(0, 25) || "2-Bosqich: Implementatsiya",
+          desc: currentSlide.bullets[1] || "Asosiy mexanizmlar va raqamli vositalarni joriy etish",
+          dateOrPhase: "Amaliy faza"
+        },
+        {
+          step: 3,
+          title: currentSlide.bullets[2]?.split('—')[0]?.slice(0, 25) || "3-Bosqich: Baholash",
+          desc: currentSlide.bullets[2] || "Erishilgan samaradorlikni tahlil qilish va optimallashtirish",
+          dateOrPhase: "Yakuniy faza"
+        }
+      ];
+    } else if (newLayout === 'split' && !updatedSlide.imageUrl) {
+      updatedSlide.imageUrl = modalPhotos[0]?.url || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80';
+      updatedSlide.imageCaption = "Mavzuga oid illyustratsiya";
+    } else if (newLayout === 'quote' && !updatedSlide.quoteAuthor) {
+      updatedSlide.quoteAuthor = authorName || "Soha Mutaxassisi";
+    }
+
+    const updated = slides.map((s, idx) => (idx === currentSlideIndex ? updatedSlide : s));
+    onUpdateSlides(updated);
+    showToast(`Maket o'zgartirildi: ${newLayout.toUpperCase()}`);
+  };
+
+  const handleUpdateStat = (sIndex: number, field: keyof StatItem, val: string) => {
+    const currentStats = currentSlide.statsData ? [...currentSlide.statsData] : [
+      { value: '+38%', label: "Samaradorlik", change: "Prognoz" },
+      { value: '2.5x', label: "Tezlashuv", change: "Raqamli" },
+      { value: '92%', label: "Qamrov", change: "O'zbekistonda" }
+    ];
+    if (currentStats[sIndex]) {
+      currentStats[sIndex] = { ...currentStats[sIndex], [field]: val };
+      updateCurrentSlide('statsData', currentStats);
+    }
+  };
+
+  const handleUpdateColumn = (cIndex: number, field: keyof ColumnCardItem, val: string) => {
+    const currentCols = currentSlide.columnsData ? [...currentSlide.columnsData] : [
+      { title: "Nazariya", desc: "Ta'rif", tag: "1-Yo'nalish" },
+      { title: "Amaliyot", desc: "Ta'rif", tag: "2-Yo'nalish" },
+      { title: "Natija", desc: "Ta'rif", tag: "3-Yo'nalish" }
+    ];
+    if (currentCols[cIndex]) {
+      currentCols[cIndex] = { ...currentCols[cIndex], [field]: val };
+      updateCurrentSlide('columnsData', currentCols);
+    }
+  };
+
+  const handleUpdateTimelineStep = (tIndex: number, field: keyof TimelineStepItem, val: any) => {
+    const currentSteps = currentSlide.timelineSteps ? [...currentSlide.timelineSteps] : [
+      { step: 1, title: "1-Bosqich", desc: "Ta'rif", dateOrPhase: "1-Faza" },
+      { step: 2, title: "2-Bosqich", desc: "Ta'rif", dateOrPhase: "2-Faza" },
+      { step: 3, title: "3-Bosqich", desc: "Ta'rif", dateOrPhase: "3-Faza" }
+    ];
+    if (currentSteps[tIndex]) {
+      currentSteps[tIndex] = { ...currentSteps[tIndex], [field]: val };
+      updateCurrentSlide('timelineSteps', currentSteps);
+    }
+  };
+
   return (
     <div className={`relative flex flex-col bg-slate-900 text-white ${isFullscreen ? 'fixed inset-0 z-50 overflow-hidden' : 'min-h-[calc(100vh-64px)]'}`}>
       
@@ -483,6 +587,56 @@ export const PresentationStudio: React.FC<PresentationStudioProps> = ({
         {/* CENTER: PRESENTATION CANVAS */}
         <main className="flex-1 flex flex-col items-center justify-center p-4 sm:p-8 bg-slate-900/90 overflow-auto">
           
+          {/* Gamma 1-Click Layout Switcher Toolbar (Above slide) */}
+          {!isFullscreen && (
+            <div className="mb-3 flex items-center justify-between gap-2 rounded-2xl bg-slate-950/90 p-1.5 border border-slate-800 shadow-2xl max-w-4xl w-full overflow-x-auto scrollbar-none">
+              <div className="flex items-center gap-1.5 shrink-0">
+                <span className="text-[10px] font-black uppercase tracking-wider text-amber-400 px-2 shrink-0 flex items-center gap-1">
+                  <Sparkles className="h-3 w-3 text-amber-400" />
+                  <span>Gamma Maket:</span>
+                </span>
+                {[
+                  { id: 'split' as SlideLayoutType, label: 'Rasm + Matn', icon: Split },
+                  { id: 'stats' as SlideLayoutType, label: 'Statistika (KPI)', icon: BarChart3 },
+                  { id: 'columns' as SlideLayoutType, label: '3 Ustun', icon: Columns3 },
+                  { id: 'timeline' as SlideLayoutType, label: 'Bosqichlar', icon: Clock },
+                  { id: 'bullets' as SlideLayoutType, label: 'Tezislar', icon: ListOrdered },
+                  { id: 'quote' as SlideLayoutType, label: 'Iqtibos', icon: Quote },
+                  { id: 'title' as SlideLayoutType, label: 'Titul', icon: Layers },
+                ].map((l) => {
+                  const Icon = l.icon;
+                  const isActive = currentSlide.layout === l.id;
+                  return (
+                    <button
+                      key={l.id}
+                      type="button"
+                      onClick={() => handleSwitchLayout(l.id)}
+                      className={`flex items-center gap-1.5 rounded-xl px-2.5 py-1 text-xs font-bold transition-all shrink-0 ${
+                        isActive
+                          ? 'bg-blue-600 text-white shadow-md shadow-blue-500/30 ring-1 ring-blue-400'
+                          : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                      }`}
+                    >
+                      <Icon className="h-3 w-3" />
+                      <span>{l.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {currentSlide.layout === 'split' && (
+                <button
+                  type="button"
+                  onClick={() => setShowImageModal(true)}
+                  className="flex items-center gap-1 rounded-xl bg-slate-800 px-2.5 py-1 text-xs font-semibold text-slate-300 hover:bg-slate-700 hover:text-white shrink-0 ml-2"
+                >
+                  <ImageIcon className="h-3 w-3 text-blue-400" />
+                  <span>Rasmni almashtirish</span>
+                </button>
+              )}
+            </div>
+          )}
+
           {/* Slide Stage Container - Qat'iy bir xil 16:9 o'lcham */}
           <div className={`relative w-full flex items-center justify-center ${
             isFullscreen ? 'h-full p-4' : 'max-w-4xl h-[490px] aspect-[16/9]'
@@ -533,6 +687,237 @@ export const PresentationStudio: React.FC<PresentationStudioProps> = ({
                     <div className="mt-6 inline-block rounded-2xl bg-black/20 backdrop-blur-md px-6 py-2.5 border border-white/10 text-xs">
                       <p className={currentTheme.accentColor}>Tayyorladi: {authorName || "Talaba"}</p>
                       <p className="opacity-70 mt-0.5">Toshkent – 2026</p>
+                    </div>
+                  </div>
+                ) : currentSlide.layout === 'stats' ? (
+                  // GAMMA STATS / KPI CARDS LAYOUT
+                  <div className="h-full flex flex-col justify-between py-1">
+                    <div className="shrink-0 mb-1">
+                      <input
+                        type="text"
+                        value={currentSlide.title}
+                        onChange={(e) => updateCurrentSlide('title', e.target.value)}
+                        className={`w-full bg-transparent text-lg sm:text-2xl font-extrabold tracking-tight focus:outline-none focus:ring-1 focus:ring-white/30 rounded px-1 ${currentTheme.textColor}`}
+                        placeholder="Slayd sarlavhasi"
+                      />
+                      <input
+                        type="text"
+                        value={currentSlide.subtitle || ''}
+                        onChange={(e) => updateCurrentSlide('subtitle', e.target.value)}
+                        className={`w-full bg-transparent text-xs mt-0.5 focus:outline-none focus:ring-1 focus:ring-white/30 rounded px-1 ${currentTheme.subtitleColor}`}
+                        placeholder="Statistik tahlil va asosiy raqamlar"
+                      />
+                    </div>
+
+                    {/* Key takeaway note */}
+                    <div className="mb-2 rounded-xl bg-white/10 backdrop-blur-md px-3 py-1.5 border border-white/15 flex items-center gap-2">
+                      <span className="text-amber-300 text-xs shrink-0 font-bold">💡 Asosiy xulosa:</span>
+                      <input
+                        type="text"
+                        value={currentSlide.bullets[0] || "Sohada erishilgan asosiy ko'rsatkichlar va tahliliy natijalar"}
+                        onChange={(e) => handleUpdateBullet(0, e.target.value)}
+                        className={`flex-1 bg-transparent text-xs font-semibold focus:outline-none ${currentTheme.textColor}`}
+                        placeholder="Asosiy fikr yoki xulosani yozing..."
+                      />
+                    </div>
+
+                    {/* 3 KPI Cards */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 flex-1 items-stretch max-h-[220px]">
+                      {(currentSlide.statsData && currentSlide.statsData.length > 0
+                        ? currentSlide.statsData
+                        : [
+                            { value: '+38%', label: "Samaradorlik o'sishi", change: "Prognoz" },
+                            { value: '2.5x', label: "Jarayonlar tezlashuvi", change: "Raqamli" },
+                            { value: '92%', label: "Qamrov va natijadorlik", change: "O'zbekistonda" }
+                          ]
+                      ).slice(0, 3).map((st, sIdx) => (
+                        <div
+                          key={sIdx}
+                          className={`group relative rounded-2xl p-3 sm:p-4 flex flex-col justify-between items-center text-center transition-all hover:scale-[1.02] shadow-xl ${currentTheme.cardBg} border border-white/20`}
+                        >
+                          {st.change && (
+                            <input
+                              type="text"
+                              value={st.change}
+                              onChange={(e) => handleUpdateStat(sIdx, 'change', e.target.value)}
+                              className="mb-1 text-[10px] font-black uppercase tracking-wider text-center bg-white/10 px-2.5 py-0.5 rounded-full border border-white/20 focus:outline-none text-white/90"
+                            />
+                          )}
+                          <input
+                            type="text"
+                            value={st.value}
+                            onChange={(e) => handleUpdateStat(sIdx, 'value', e.target.value)}
+                            className={`w-full text-center text-2xl sm:text-4xl font-black bg-transparent tracking-tight focus:outline-none ${currentTheme.accentColor}`}
+                          />
+                          <div className="w-8 h-0.5 bg-white/20 my-1 rounded-full" />
+                          <textarea
+                            rows={2}
+                            value={st.label}
+                            onChange={(e) => handleUpdateStat(sIdx, 'label', e.target.value)}
+                            className={`w-full text-center text-xs font-semibold bg-transparent resize-none focus:outline-none leading-snug ${currentTheme.textColor}`}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : currentSlide.layout === 'columns' ? (
+                  // GAMMA 3-USTUNLI (COLUMNS) LAYOUT
+                  <div className="h-full flex flex-col justify-between py-1">
+                    <div className="shrink-0 mb-1">
+                      <input
+                        type="text"
+                        value={currentSlide.title}
+                        onChange={(e) => updateCurrentSlide('title', e.target.value)}
+                        className={`w-full bg-transparent text-lg sm:text-2xl font-extrabold tracking-tight focus:outline-none focus:ring-1 focus:ring-white/30 rounded px-1 ${currentTheme.textColor}`}
+                        placeholder="Slayd sarlavhasi"
+                      />
+                      <input
+                        type="text"
+                        value={currentSlide.subtitle || ''}
+                        onChange={(e) => updateCurrentSlide('subtitle', e.target.value)}
+                        className={`w-full bg-transparent text-xs mt-0.5 focus:outline-none focus:ring-1 focus:ring-white/30 rounded px-1 ${currentTheme.subtitleColor}`}
+                        placeholder="Tizimli tasnif va asosiy yo'nalishlar"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 flex-1 items-stretch max-h-[250px]">
+                      {(currentSlide.columnsData && currentSlide.columnsData.length > 0
+                        ? currentSlide.columnsData
+                        : [
+                            { title: "Nazariy Asoslar", desc: "Fundamental tamoyillar va ilmiy qarashlar tahlili", tag: "1-Yo'nalish" },
+                            { title: "Amaliy Tatbiq", desc: "Sohaga raqamli texnologiyalarni tatbiq etish mexanizmlari", tag: "2-Yo'nalish" },
+                            { title: "Kutilgan Natija", desc: "Samaradorlikni oshirish va barqaror rivojlanish", tag: "3-Yo'nalish" }
+                          ]
+                      ).slice(0, 3).map((col, cIdx) => (
+                        <div
+                          key={cIdx}
+                          className={`group relative rounded-2xl p-3.5 flex flex-col justify-between transition-all hover:scale-[1.02] shadow-xl ${currentTheme.cardBg} border border-white/20`}
+                        >
+                          <div>
+                            <input
+                              type="text"
+                              value={col.tag || `${cIdx + 1}-Yo'nalish`}
+                              onChange={(e) => handleUpdateColumn(cIdx, 'tag', e.target.value)}
+                              className={`text-[10px] font-black uppercase tracking-wider bg-white/10 px-2 py-0.5 rounded-lg border border-white/15 focus:outline-none ${currentTheme.accentColor}`}
+                            />
+                            <input
+                              type="text"
+                              value={col.title}
+                              onChange={(e) => handleUpdateColumn(cIdx, 'title', e.target.value)}
+                              className={`w-full mt-1.5 text-xs sm:text-sm font-extrabold bg-transparent focus:outline-none leading-tight ${currentTheme.textColor}`}
+                            />
+                            <div className="w-6 h-0.5 bg-white/20 my-1.5 rounded-full" />
+                          </div>
+                          <textarea
+                            rows={3}
+                            value={col.desc}
+                            onChange={(e) => handleUpdateColumn(cIdx, 'desc', e.target.value)}
+                            className={`w-full text-xs bg-transparent resize-none focus:outline-none leading-relaxed opacity-90 ${currentTheme.textColor}`}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : currentSlide.layout === 'timeline' ? (
+                  // GAMMA TIMELINE / STEPS LAYOUT
+                  <div className="h-full flex flex-col justify-between py-1">
+                    <div className="shrink-0 mb-1">
+                      <input
+                        type="text"
+                        value={currentSlide.title}
+                        onChange={(e) => updateCurrentSlide('title', e.target.value)}
+                        className={`w-full bg-transparent text-lg sm:text-2xl font-extrabold tracking-tight focus:outline-none focus:ring-1 focus:ring-white/30 rounded px-1 ${currentTheme.textColor}`}
+                        placeholder="Slayd sarlavhasi"
+                      />
+                      <input
+                        type="text"
+                        value={currentSlide.subtitle || ''}
+                        onChange={(e) => updateCurrentSlide('subtitle', e.target.value)}
+                        className={`w-full bg-transparent text-xs mt-0.5 focus:outline-none focus:ring-1 focus:ring-white/30 rounded px-1 ${currentTheme.subtitleColor}`}
+                        placeholder="Bosqichma-bosqich jarayon va rejalar"
+                      />
+                    </div>
+
+                    <div className="relative grid grid-cols-1 sm:grid-cols-3 gap-3 flex-1 items-stretch max-h-[250px]">
+                      {(currentSlide.timelineSteps && currentSlide.timelineSteps.length > 0
+                        ? currentSlide.timelineSteps
+                        : [
+                            { step: 1, title: "1-Bosqich: Diagnostika", desc: "Mavjud ko'rsatkichlar va muammolarni chuqur o'rganish", dateOrPhase: "1-Faza" },
+                            { step: 2, title: "2-Bosqich: Implementatsiya", desc: "Amaliy vositalar va raqamli mexanizmlarni joriy etish", dateOrPhase: "2-Faza" },
+                            { step: 3, title: "3-Bosqich: Baholash", desc: "Erishilgan natijalar va samaradorlikni tahlil qilish", dateOrPhase: "3-Faza" }
+                          ]
+                      ).slice(0, 3).map((st, tIdx) => (
+                        <div
+                          key={tIdx}
+                          className={`group relative rounded-2xl p-3.5 flex flex-col justify-between transition-all hover:scale-[1.02] shadow-xl ${currentTheme.cardBg} border border-white/20`}
+                        >
+                          <div>
+                            <div className="flex items-center justify-between gap-1 mb-1.5">
+                              <span className={`flex h-5 w-5 items-center justify-center rounded-full text-xs font-black ring-1 ring-white/30 bg-white/10 ${currentTheme.accentColor}`}>
+                                {st.step || tIdx + 1}
+                              </span>
+                              <input
+                                type="text"
+                                value={st.dateOrPhase || `${tIdx + 1}-Faza`}
+                                onChange={(e) => handleUpdateTimelineStep(tIdx, 'dateOrPhase', e.target.value)}
+                                className="text-[10px] font-bold uppercase tracking-wider text-right bg-transparent focus:outline-none opacity-80"
+                              />
+                            </div>
+                            <input
+                              type="text"
+                              value={st.title}
+                              onChange={(e) => handleUpdateTimelineStep(tIdx, 'title', e.target.value)}
+                              className={`w-full text-xs sm:text-sm font-extrabold bg-transparent focus:outline-none leading-tight ${currentTheme.textColor}`}
+                            />
+                            <div className="w-6 h-0.5 bg-white/20 my-1.5 rounded-full" />
+                          </div>
+                          <textarea
+                            rows={3}
+                            value={st.desc}
+                            onChange={(e) => handleUpdateTimelineStep(tIdx, 'desc', e.target.value)}
+                            className={`w-full text-xs bg-transparent resize-none focus:outline-none leading-relaxed opacity-90 ${currentTheme.textColor}`}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : currentSlide.layout === 'quote' ? (
+                  // GAMMA QUOTE / SPOTLIGHT LAYOUT
+                  <div className="h-full flex flex-col justify-between py-1">
+                    <div className="shrink-0 mb-1">
+                      <input
+                        type="text"
+                        value={currentSlide.title}
+                        onChange={(e) => updateCurrentSlide('title', e.target.value)}
+                        className={`w-full bg-transparent text-lg sm:text-2xl font-extrabold tracking-tight focus:outline-none focus:ring-1 focus:ring-white/30 rounded px-1 ${currentTheme.textColor}`}
+                        placeholder="Slayd sarlavhasi"
+                      />
+                      <input
+                        type="text"
+                        value={currentSlide.subtitle || ''}
+                        onChange={(e) => updateCurrentSlide('subtitle', e.target.value)}
+                        className={`w-full bg-transparent text-xs mt-0.5 focus:outline-none focus:ring-1 focus:ring-white/30 rounded px-1 ${currentTheme.subtitleColor}`}
+                        placeholder="Mavzuga oid muhim iqtibos yoki konseptual g'oya"
+                      />
+                    </div>
+
+                    <div className="flex-1 flex flex-col items-center justify-center text-center p-6 rounded-3xl bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl relative max-w-2xl mx-auto w-full">
+                      <span className={`text-4xl sm:text-5xl font-serif font-black leading-none opacity-80 mb-1 ${currentTheme.accentColor}`}>“</span>
+                      <textarea
+                        rows={3}
+                        value={currentSlide.bullets[0] || currentSlide.subtitle || currentSlide.title}
+                        onChange={(e) => handleUpdateBullet(0, e.target.value)}
+                        className={`w-full text-center text-base sm:text-lg font-serif italic bg-transparent resize-none focus:outline-none leading-relaxed ${currentTheme.textColor}`}
+                        placeholder="Iqtibos matnini kiriting..."
+                      />
+                      <div className="w-12 h-0.5 bg-white/20 my-2 rounded-full" />
+                      <input
+                        type="text"
+                        value={currentSlide.quoteAuthor || authorName || "Soha Mutaxassisi"}
+                        onChange={(e) => updateCurrentSlide('quoteAuthor', e.target.value)}
+                        className={`text-center text-xs font-bold bg-transparent focus:outline-none ${currentTheme.accentColor}`}
+                        placeholder="Muallif yoki manba"
+                      />
                     </div>
                   </div>
                 ) : (
@@ -837,47 +1222,107 @@ export const PresentationStudio: React.FC<PresentationStudioProps> = ({
               )}
 
               {activeTab === 'layout' && (
-                <div className="space-y-3">
+                <div className="space-y-2.5">
                   <p className="text-[11px] text-slate-400">
-                    Joriy slaydning joylashuv strukturasini tanlang:
+                    Joriy slayd uchun Gamma uslubidagi maketni tanlang:
                   </p>
 
                   <button
-                    onClick={() => updateCurrentSlide('layout', 'title')}
-                    className={`w-full rounded-xl border p-3 text-left transition-all ${
-                      currentSlide.layout === 'title' ? 'border-blue-500 bg-blue-950/20' : 'border-slate-800 hover:bg-slate-900'
+                    type="button"
+                    onClick={() => handleSwitchLayout('split')}
+                    className={`w-full rounded-xl border p-2.5 text-left transition-all ${
+                      currentSlide.layout === 'split' ? 'border-blue-500 bg-blue-950/30 ring-1 ring-blue-500' : 'border-slate-800 hover:bg-slate-900'
                     }`}
                   >
-                    <p className="text-xs font-bold text-white">1. Titul Slayd</p>
-                    <p className="text-[10px] text-slate-400 mt-0.5">Katta sarlavha, ma'ruzachi va sana</p>
+                    <div className="flex items-center gap-2">
+                      <Split className="h-4 w-4 text-blue-400 shrink-0" />
+                      <p className="text-xs font-bold text-white">1. Bo'lingan (Rasm + Matn)</p>
+                    </div>
+                    <p className="text-[10px] text-slate-400 mt-1 pl-6">Chapda asosiy tezislar, o'ngda mavzuga oid rasm</p>
                   </button>
 
                   <button
-                    onClick={() => {
-                      updateCurrentSlide('layout', 'split');
-                      if (!currentSlide.imageUrl) {
-                        updateCurrentSlide('imageUrl', modalPhotos[0]?.url || 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=900&auto=format&fit=crop&q=80');
-                      }
-                    }}
-                    className={`w-full rounded-xl border p-3 text-left transition-all ${
-                      currentSlide.layout === 'split' ? 'border-blue-500 bg-blue-950/20' : 'border-slate-800 hover:bg-slate-900'
+                    type="button"
+                    onClick={() => handleSwitchLayout('stats')}
+                    className={`w-full rounded-xl border p-2.5 text-left transition-all ${
+                      currentSlide.layout === 'stats' ? 'border-blue-500 bg-blue-950/30 ring-1 ring-blue-500' : 'border-slate-800 hover:bg-slate-900'
                     }`}
                   >
-                    <p className="text-xs font-bold text-white">2. Bo'lingan Slayd (Matn + Rasm)</p>
-                    <p className="text-[10px] text-slate-400 mt-0.5">Chapda tezislar, o'ngda ko'rgazmali rasm</p>
+                    <div className="flex items-center gap-2">
+                      <BarChart3 className="h-4 w-4 text-emerald-400 shrink-0" />
+                      <p className="text-xs font-bold text-white">2. Statistika & KPI (3 Raqam)</p>
+                    </div>
+                    <p className="text-[10px] text-slate-400 mt-1 pl-6">Katta raqamlar, o'sish ko'rsatkichlari va tahlil</p>
                   </button>
 
                   <button
-                    onClick={() => {
-                      updateCurrentSlide('layout', 'bullets');
-                      updateCurrentSlide('imageUrl', undefined);
-                    }}
-                    className={`w-full rounded-xl border p-3 text-left transition-all ${
-                      currentSlide.layout === 'bullets' ? 'border-blue-500 bg-blue-950/20' : 'border-slate-800 hover:bg-slate-900'
+                    type="button"
+                    onClick={() => handleSwitchLayout('columns')}
+                    className={`w-full rounded-xl border p-2.5 text-left transition-all ${
+                      currentSlide.layout === 'columns' ? 'border-blue-500 bg-blue-950/30 ring-1 ring-blue-500' : 'border-slate-800 hover:bg-slate-900'
                     }`}
                   >
-                    <p className="text-xs font-bold text-white">3. To'liq Kenglikdagi Tezislar</p>
-                    <p className="text-[10px] text-slate-400 mt-0.5">Faqatgina kengaytirilgan punktlar va tahlillar</p>
+                    <div className="flex items-center gap-2">
+                      <Columns3 className="h-4 w-4 text-cyan-400 shrink-0" />
+                      <p className="text-xs font-bold text-white">3. 3 Ustunli Kartalar</p>
+                    </div>
+                    <p className="text-[10px] text-slate-400 mt-1 pl-6">Tushunchalar, turlar yoki tamoyillarni yonma-yon solishtirish</p>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleSwitchLayout('timeline')}
+                    className={`w-full rounded-xl border p-2.5 text-left transition-all ${
+                      currentSlide.layout === 'timeline' ? 'border-blue-500 bg-blue-950/30 ring-1 ring-blue-500' : 'border-slate-800 hover:bg-slate-900'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-amber-400 shrink-0" />
+                      <p className="text-xs font-bold text-white">4. Bosqichlar (Timeline)</p>
+                    </div>
+                    <p className="text-[10px] text-slate-400 mt-1 pl-6">1-2-3 tartibli rivojlanish bosqichlari va fazalari</p>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleSwitchLayout('quote')}
+                    className={`w-full rounded-xl border p-2.5 text-left transition-all ${
+                      currentSlide.layout === 'quote' ? 'border-blue-500 bg-blue-950/30 ring-1 ring-blue-500' : 'border-slate-800 hover:bg-slate-900'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Quote className="h-4 w-4 text-purple-400 shrink-0" />
+                      <p className="text-xs font-bold text-white">5. Dolzarb Iqtibos</p>
+                    </div>
+                    <p className="text-[10px] text-slate-400 mt-1 pl-6">Markaziy katta iqtibos va uning muallifi</p>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleSwitchLayout('bullets')}
+                    className={`w-full rounded-xl border p-2.5 text-left transition-all ${
+                      currentSlide.layout === 'bullets' ? 'border-blue-500 bg-blue-950/30 ring-1 ring-blue-500' : 'border-slate-800 hover:bg-slate-900'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <ListOrdered className="h-4 w-4 text-slate-300 shrink-0" />
+                      <p className="text-xs font-bold text-white">6. Kengaytirilgan Tezislar</p>
+                    </div>
+                    <p className="text-[10px] text-slate-400 mt-1 pl-6">To'liq kenglikdagi tartibli fikrlar va tahlillar</p>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleSwitchLayout('title')}
+                    className={`w-full rounded-xl border p-2.5 text-left transition-all ${
+                      currentSlide.layout === 'title' ? 'border-blue-500 bg-blue-950/30 ring-1 ring-blue-500' : 'border-slate-800 hover:bg-slate-900'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Layers className="h-4 w-4 text-rose-400 shrink-0" />
+                      <p className="text-xs font-bold text-white">7. Titul Slayd</p>
+                    </div>
+                    <p className="text-[10px] text-slate-400 mt-1 pl-6">Katta bosh sarlavha, ma'ruzachi va universitet</p>
                   </button>
                 </div>
               )}

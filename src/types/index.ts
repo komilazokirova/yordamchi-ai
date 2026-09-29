@@ -11,6 +11,37 @@ export interface OutlineItem {
   isGenerating?: boolean;
 }
 
+export type SlideLayoutType =
+  | 'title'
+  | 'bullets'
+  | 'split'
+  | 'quote'
+  | 'conclusion'
+  | 'columns'
+  | 'stats'
+  | 'timeline';
+
+export interface StatItem {
+  value: string;
+  label: string;
+  change?: string;
+  icon?: string;
+}
+
+export interface ColumnCardItem {
+  title: string;
+  desc: string;
+  tag?: string;
+  icon?: string;
+}
+
+export interface TimelineStepItem {
+  step: number;
+  title: string;
+  desc: string;
+  dateOrPhase?: string;
+}
+
 export interface SlideData {
   id: string;
   slideNumber: number;
@@ -18,10 +49,14 @@ export interface SlideData {
   subtitle?: string;
   bullets: string[];
   notes?: string;
-  layout: 'title' | 'bullets' | 'split' | 'quote' | 'conclusion';
+  layout: SlideLayoutType;
   imageUrl?: string;
   imageCaption?: string;
   themeId: string;
+  statsData?: StatItem[];
+  columnsData?: ColumnCardItem[];
+  timelineSteps?: TimelineStepItem[];
+  quoteAuthor?: string;
 }
 
 export interface AcademicSection {

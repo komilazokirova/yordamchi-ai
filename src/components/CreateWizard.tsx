@@ -65,6 +65,7 @@ export const CreateWizard: React.FC<CreateWizardProps> = ({
   const [faculty, setFaculty] = useState('Axborot texnologiyalari');
   const [authorName, setAuthorName] = useState(defaultAuthor);
   const [supervisorName, setSupervisorName] = useState('Dotsent A. Rahimov');
+  const [density, setDensity] = useState<'compact' | 'balanced' | 'detailed'>('balanced');
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   // Update default targetCount when docType changes
@@ -341,6 +342,54 @@ export const CreateWizard: React.FC<CreateWizardProps> = ({
               </div>
             </div>
           </div>
+
+          {/* Gamma Card Density Selector (Only for presentations) */}
+          {docType === 'presentation' && (
+            <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 dark:border-slate-800 dark:bg-slate-900/60">
+              <div className="flex items-center justify-between mb-2.5">
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                  <Sparkles className="h-3.5 w-3.5 text-amber-500" />
+                  <span>Gamma Matn Zichligi (Card Density):</span>
+                </label>
+                <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                  {density === 'compact' ? '⚡ Ixcham & Vizual' : density === 'detailed' ? '📚 Batafsil & Akademik' : '⚖️ Standart'}
+                </span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                {[
+                  {
+                    id: 'compact',
+                    title: '⚡ Ixcham & Vizual',
+                    desc: 'Katta sarlavhalar, asosiy raqamlar va kam matn (Gamma uslubi)'
+                  },
+                  {
+                    id: 'balanced',
+                    title: '⚖️ Standart',
+                    desc: 'Optimal tezislar, tushuntirishlar va ko\'rgazmali rasmlar'
+                  },
+                  {
+                    id: 'detailed',
+                    title: '📚 Batafsil & Akademik',
+                    desc: 'Chuqur ilmiy asoslar, faktlar va to\'liq matnlar'
+                  },
+                ].map((d) => (
+                  <button
+                    key={d.id}
+                    type="button"
+                    onClick={() => setDensity(d.id as any)}
+                    className={`rounded-xl border p-2.5 text-left transition-all ${
+                      density === d.id
+                        ? 'border-blue-500 bg-blue-50/80 dark:bg-blue-950/40 ring-1 ring-blue-500 text-blue-950 dark:text-blue-100 shadow-sm'
+                        : 'border-slate-200 bg-white dark:bg-slate-800 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-slate-300'
+                    }`}
+                  >
+                    <p className="text-xs font-bold">{d.title}</p>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">{d.desc}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Step 3: Topic Input */}
           <div>
